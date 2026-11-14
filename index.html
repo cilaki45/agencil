@@ -149,7 +149,7 @@
                           x-text="getProjectCount(id) + ' Agd'"></span>
                   </div>
                   <div class="font-bold text-[11px] leading-snug line-clamp-1" x-text="proj.nickname"></div>
-                  <div class="text-[9px] mt-0.5 truncate text-slate-400" x-text="proj.koordinator ? 'PIC: ' + proj.koordinator : 'Umum'"></div>
+                  <div class="text-[9px] mt-0.5 truncate text-slate-400" x-text="(proj.nama_koordinator || proj.nama_lengkap) ? 'PIC: ' + (proj.nama_koordinator || proj.nama_lengkap) : (proj.koordinator ? 'PIC: ' + proj.koordinator : 'Umum')"></div>
                 </button>
               </template>
             </div>
@@ -282,7 +282,11 @@
 
           <div class="grid grid-cols-7 bg-slate-200 gap-px">
             <template x-for="cell in calendarGrid" :key="cell.dateStr">
-              <div class="bg-white min-h-[100px] md:min-h-[110px] p-2 flex flex-col transition hover:bg-slate-50/50" :class="!cell.isCurrentMonth ? 'bg-slate-50/70 text-slate-400' : ''">
+              <div class="bg-white p-2 flex flex-col transition hover:bg-slate-50/50" 
+                   :class="[
+                     !cell.isCurrentMonth ? 'bg-slate-50/70 text-slate-400' : '',
+                     cell.agendas.length === 0 ? 'min-h-[55px] md:min-h-[110px]' : 'min-h-[100px] md:min-h-[110px]'
+                   ]">
                 
                 <div class="flex items-center justify-between mb-1.5">
                   <span class="text-xs font-bold" :class="isToday(cell.dateStr) ? 'w-6 h-6 md:w-7 md:h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/30' : 'text-slate-700'" x-text="cell.dayNum"></span>
@@ -512,11 +516,11 @@
         <h3 class="font-bold text-xl text-slate-900 tracking-tight leading-snug" x-text="viewAgendaData?.nama_kegiatan"></h3>
         
         <div class="flex items-center gap-2 mt-2 text-xs text-slate-600 font-medium" 
-             x-show="proyekList[viewAgendaData?.id_proyek]?.nama_lengkap">
+             x-show="proyekList[viewAgendaData?.id_proyek]?.nama_lengkap || proyekList[viewAgendaData?.id_proyek]?.nama_koordinator">
           <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
           </svg>
-          <span>PIC: <strong class="text-slate-900 font-semibold" x-text="proyekList[viewAgendaData?.id_proyek]?.nama_lengkap"></strong></span>
+          <span>PIC: <strong class="text-slate-900 font-semibold" x-text="proyekList[viewAgendaData?.id_proyek]?.nama_koordinator || proyekList[viewAgendaData?.id_proyek]?.nama_lengkap"></strong></span>
         </div>
       </div>
 
