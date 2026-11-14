@@ -69,18 +69,40 @@ function agendaApp() {
       return false;
     },
 
-    loginSession() {
+    async loginSession() {
       if (!this.loginForm.koordinator || !this.loginForm.pin) {
         this.showToast('Pilih koordinator dan masukkan PIN terlebih dahulu!', 'error');
         return;
       }
-      this.authKoordinator = this.loginForm.koordinator;
-      this.authPin = this.loginForm.pin;
-      sessionStorage.setItem('agencil_coord', this.authKoordinator);
-      sessionStorage.setItem('agencil_pin', this.authPin);
-      this.loginForm.pin = '';
-      this.openLoginModal = false;
-      this.showToast(`Berhasil masuk sesi sebagai ${this.authKoordinator}`, 'success');
+
+      try {
+        let res = await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({
+            action: 'login',
+            koordinator_input: this.loginForm.koordinator,
+            koordinator: this.loginForm.koordinator,
+            pin_input: this.loginForm.pin,
+            pin: this.loginForm.pin
+          }) 
+        });
+        let result = await res.json();
+
+        if (result.status === 'sukses') {
+          this.authKoordinator = this.loginForm.koordinator;
+          this.authPin = this.loginForm.pin;
+          sessionStorage.setItem('agencil_coord', this.authKoordinator);
+          sessionStorage.setItem('agencil_pin', this.authPin);
+          this.loginForm.pin = '';
+          this.openLoginModal = false;
+          this.showToast(`Berhasil masuk sesi sebagai ${this.authKoordinator}`, 'success');
+          this.initData(true);
+        } else {
+          this.showToast(result.message || 'Gagal login!', 'error');
+        }
+      } catch (err) {
+        this.showToast('Kesalahan jaringan: ' + err.message, 'error');
+      }
     },
 
     logoutSession() {
@@ -153,7 +175,6 @@ function agendaApp() {
       return { nickname: proj.nickname, warna: proj.warna, count: this.getProjectCount(this.selectedProject) };
     },
 
-    // GETTER UTAMA: Hanya status Aktif & Urut Abjad A-Z
     get sortedActiveProyekList() {
       if (!this.proyekList) return {};
       const filtered = {};
@@ -317,7 +338,6 @@ function agendaApp() {
         cleanJadwalTeks = '';
       }
 
-      // IDE GILA: Ekstrak angka dari string "X Orang, Y Hari" secara otomatis saat edit!
       let orangMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Orang/i) : null;
       let hariMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Hari/i) : null;
 
