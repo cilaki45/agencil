@@ -306,16 +306,22 @@ function agendaApp() {
       if (!cleanJadwalTeks || cleanJadwalTeks.includes('T17:00:00') || cleanJadwalTeks.includes('Z')) {
         cleanJadwalTeks = '';
       }
+
+      // IDE GILA: Ekstrak angka dari string "X Orang, Y Hari" secara otomatis saat edit!
+      let orangMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Orang/i) : null;
+      let hariMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Hari/i) : null;
+
       this.form = { 
         ...item, 
         tanggal: cleanDate,
         jadwal_teks: cleanJadwalTeks,
         durasi_hari: item.durasi_hari || 1,
-        tim_jumlah_orang: item.tim_jumlah_orang || '',
-        tim_jumlah_hari: item.tim_jumlah_hari || '',
+        tim_jumlah_orang: orangMatch ? orangMatch[1] : '',
+        tim_jumlah_hari: hariMatch ? hariMatch[1] : '',
         koordinator_input: this.authKoordinator, 
         pin_input: this.authPin 
       };
+
       if (!this.form.jadwal_teks) {
         this.generateJadwalTeks();
       }
