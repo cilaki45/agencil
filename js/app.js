@@ -7,6 +7,8 @@ function agendaApp() {
     proyekList: {},
     users: {},
     selectedProject: 'ALL',
+    autoRefreshTimer: null,
+    initialHtml: '',
     sidebarOpen: true,
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;
@@ -267,14 +269,42 @@ function agendaApp() {
       return dateStr === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     },
 
-    async initData() {
+    async checkAppUpdate(isBackground) {
       try {
-        let res = await fetch(API_URL);
+        let htmlRes = await fetch(`index.html?t=${Date.now()}`);
+        if (!htmlRes.ok) return;
+        let latestHtml = await htmlRes.text();
+        if (!isBackground) {
+          this.initialHtml = latestHtml;
+        } else if (this.initialHtml && latestHtml !== this.initialHtml) {
+          window.location.reload();
+        }
+      } catch (e) {}
+    },
+
+    async initData(isBackground = false) {
+      await this.checkAppUpdate(isBackground);
+      try {
+        let separator = API_URL.includes('?') ? '&' : '?';
+        let res = await fetch(`${API_URL}${separator}t=${Date.now()}`);
         let data = await res.json();
         this.agendaList = data.agenda;
         this.proyekList = data.proyek;
         this.users = data.users || {};
-      } catch (err) { this.showToast('Gagal memuat data dari API.', 'error'); } finally { this.loading = false; }
+        if (!isBackground && !this.autoRefreshTimer) {
+          this.autoRefreshTimer = setInterval(() => {
+            if (!this.openModal && !this.viewModal && !this.openPinModalBox && !this.openLoginModal) {
+              this.initData(true);
+            }
+          }, 30000);
+        }
+      } catch (err) {
+        if (!isBackground) {
+          this.showToast('Gagal memuat data dari API.', 'error');
+        }
+      } finally {
+        this.loading = false;
+      }
     },
 
     async submitForm() {
@@ -298,7 +328,7 @@ function agendaApp() {
           }
 
           this.openModal = false;
-          this.initData();
+          this.initData(true);
           this.showToast('Agenda berhasil disimpan!', 'success');
         } else { this.showToast(result.message, 'error'); }
       } catch (err) { this.showToast('Kesalahan jaringan: ' + err.message, 'error'); } finally { this.submitting = false; }
@@ -336,7 +366,7 @@ function agendaApp() {
         let result = await res.json();
         if(result.status === 'sukses') {
           this.openModal = false;
-          this.initData();
+          this.initData(true);
           this.showToast('Agenda dihapus permanen.', 'success');
         } else { this.showToast(result.message, 'error'); }
       } catch (err) { this.showToast('Kesalahan jaringan.', 'error'); } finally { this.submitting = false; }
