@@ -300,6 +300,16 @@ function agendaApp() {
       this.openPinModalBox = true;
     },
 
+    updateTimDurasi() {
+      let org = this.form.tim_jumlah_orang ? this.form.tim_jumlah_orang + ' Orang' : '';
+      let day = this.form.tim_jumlah_hari ? this.form.tim_jumlah_hari + ' Hari' : '';
+      if (org && day) {
+        this.form.tim_durasi = `${org}, ${day}`;
+      } else {
+        this.form.tim_durasi = org || day;
+      }
+    },
+
     editAgenda(item) {
       let cleanDate = item.tanggal ? String(item.tanggal).split('T')[0] : '';
       let cleanJadwalTeks = item.jadwal_teks;
