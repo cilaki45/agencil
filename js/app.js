@@ -338,6 +338,28 @@ function agendaApp() {
         cleanJadwalTeks = '';
       }
 
+      // SMART DURATION EXTRACTOR: Hitung durasi hari secara otomatis saat edit dari jadwal_teks
+      let calculatedDurasi = 1;
+      if (cleanJadwalTeks) {
+        const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
+        let matchRange = cleanJadwalTeks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+        
+        if (matchRange && cleanDate) {
+          let startDay = parseInt(matchRange[1], 10);
+          let endDay = parseInt(matchRange[2], 10);
+          let monthStr = matchRange[3].toLowerCase();
+          let year = parseInt(matchRange[4], 10);
+          let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
+          
+          if (monthIdx !== -1) {
+            let startD = new Date(year, monthIdx, startDay);
+            let endD = new Date(year, monthIdx, endDay);
+            let diffDays = Math.round((endD - startD) / (1000 * 60 * 60 * 24)) + 1;
+            if (diffDays > 0) calculatedDurasi = diffDays;
+          }
+        }
+      }
+
       let orangMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Orang/i) : null;
       let hariMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Hari/i) : null;
 
@@ -345,7 +367,7 @@ function agendaApp() {
         ...item, 
         tanggal: cleanDate,
         jadwal_teks: cleanJadwalTeks,
-        durasi_hari: item.durasi_hari || 1,
+        durasi_hari: calculatedDurasi,
         tim_jumlah_orang: orangMatch ? orangMatch[1] : '',
         tim_jumlah_hari: hariMatch ? hariMatch[1] : '',
         koordinator_input: this.authKoordinator, 
