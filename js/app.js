@@ -59,6 +59,17 @@ function agendaApp() {
       return [...new Set(coords)].sort();
     },
 
+    // Cek apakah user yang sedang login adalah superadmin
+    get isSuperAdmin() {
+      if (!this.authKoordinator) return false;
+      let coordKey = this.authKoordinator.trim().toUpperCase();
+      if (coordKey === 'SUPERADMIN') return true;
+      if (this.users && this.users[coordKey] && this.users[coordKey].role === 'superadmin') {
+        return true;
+      }
+      return false;
+    },
+
     loginSession() {
       if (!this.loginForm.koordinator || !this.loginForm.pin) {
         this.showToast('Pilih koordinator dan masukkan PIN terlebih dahulu!', 'error');
@@ -188,9 +199,15 @@ function agendaApp() {
       }).length;
     },
 
+    // Jika Superadmin, tampilkan SEMUA proyek di form pilihan proyek
     get filteredProyekOptions() {
       let activeCoord = this.authKoordinator;
       if (!activeCoord) return {};
+      
+      if (this.isSuperAdmin) {
+        return this.proyekList;
+      }
+
       let keyword = activeCoord.trim().toLowerCase();
       let filtered = {};
       Object.keys(this.proyekList).forEach(id => {
@@ -266,14 +283,24 @@ function agendaApp() {
     },
 
     editAgenda(item) {
+      let cleanDate = item.tanggal ? String(item.tanggal).split('T')[0] : '';
+      let cleanJadwalTeks = item.jadwal_teks;
+      if (!cleanJadwalTeks || cleanJadwalTeks.includes('T17:00:00') || cleanJadwalTeks.includes('Z')) {
+        cleanJadwalTeks = '';
+      }
       this.form = { 
         ...item, 
-        durasi_hari: 1,
-        tim_jumlah_orang: '',
-        tim_jumlah_hari: '',
+        tanggal: cleanDate,
+        jadwal_teks: cleanJadwalTeks,
+        durasi_hari: item.durasi_hari || 1,
+        tim_jumlah_orang: item.tim_jumlah_orang || '',
+        tim_jumlah_hari: item.tim_jumlah_hari || '',
         koordinator_input: this.authKoordinator, 
         pin_input: this.authPin 
       };
+      if (!this.form.jadwal_teks) {
+        this.generateJadwalTeks();
+      }
       this.confirmingDelete = false;
       this.openModal = true;
     },
