@@ -149,7 +149,10 @@ function agendaApp() {
       const filtered = {};
       Object.keys(this.proyekList).forEach(id => {
         const proj = this.proyekList[id];
-        if ((proj.nickname && proj.nickname.toLowerCase().includes(keyword)) || (proj.koordinator && proj.koordinator.toLowerCase().includes(keyword))) {
+        if ((proj.nickname && proj.nickname.toLowerCase().includes(keyword)) || 
+            (proj.koordinator && proj.koordinator.toLowerCase().includes(keyword)) ||
+            (proj.nama_koordinator && proj.nama_koordinator.toLowerCase().includes(keyword)) ||
+            (proj.nama_lengkap && proj.nama_lengkap.toLowerCase().includes(keyword))) {
           filtered[id] = proj;
         }
       });
@@ -171,7 +174,6 @@ function agendaApp() {
       return this.agendaList.filter(item => item.id_proyek === this.selectedProject);
     },
 
-    // Menghitung agenda aktif (belum selesai) khusus pada bulan & tahun yang sedang aktif dilihat di kalender
     get currentMonthActiveCount() {
       return this.filteredAgenda.filter(item => {
         if (!item.tanggal) return false;
@@ -180,10 +182,8 @@ function agendaApp() {
         let y = parseInt(parts[0], 10);
         let m = parseInt(parts[1], 10) - 1;
         
-        // Cocokkan dengan tahun dan bulan aktif di kalender
         if (y !== this.currentYear || m !== this.currentMonth) return false;
         
-        // Hanya hitung yang belum lewat (belum selesai)
         return !this.isPastAgenda(item.tanggal);
       }).length;
     },
