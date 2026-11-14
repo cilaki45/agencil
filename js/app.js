@@ -235,7 +235,7 @@ function agendaApp() {
         
         if (y !== this.currentYear || m !== this.currentMonth) return false;
         
-        return !this.isPastAgenda(item.tanggal);
+        return !this.isPastAgenda(item);
       }).length;
     },
 
@@ -367,12 +367,51 @@ function agendaApp() {
       return dateStr === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     },
 
-    isPastAgenda(dateStr) {
-      if (!dateStr) return false;
-      let cleanDate = String(dateStr).split('T')[0];
+    isPastAgenda(item) {
+      if (!item.tanggal) return false;
+      
+      let cleanDate = String(item.tanggal).split('T')[0];
+      let parts = cleanDate.split('-');
+      if (parts.length !== 3) return false;
+      
+      let year = parseInt(parts[0], 10);
+      let month = parseInt(parts[1], 10) - 1;
+      let day = parseInt(parts[2], 10);
+      
+      let endDateObj = new Date(year, month, day);
+      
+      if (item.jadwal_teks) {
+        let matchRange = item.jadwal_teks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+        let matchSingle = item.jadwal_teks.match(/(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+        
+        const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
+        
+        if (matchRange) {
+          let endDay = parseInt(matchRange[2], 10);
+          let monthStr = matchRange[3].toLowerCase();
+          let endYear = parseInt(matchRange[4], 10);
+          let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
+          
+          if (monthIdx !== -1) {
+            endDateObj = new Date(endYear, monthIdx, endDay);
+          }
+        } else if (matchSingle) {
+          let singleDay = parseInt(matchSingle[1], 10);
+          let monthStr = matchSingle[2].toLowerCase();
+          let singleYear = parseInt(matchSingle[3], 10);
+          let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
+          
+          if (monthIdx !== -1) {
+            endDateObj = new Date(singleYear, monthIdx, singleDay);
+          }
+        }
+      }
+
+      let endDateStr = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`;
       let today = new Date();
       let todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      return cleanDate < todayStr;
+      
+      return todayStr > endDateStr;
     },
 
     async checkAppUpdate(isBackground) {
