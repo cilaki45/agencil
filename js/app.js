@@ -171,6 +171,23 @@ function agendaApp() {
       return this.agendaList.filter(item => item.id_proyek === this.selectedProject);
     },
 
+    // Menghitung agenda aktif (belum selesai) khusus pada bulan & tahun yang sedang aktif dilihat di kalender
+    get currentMonthActiveCount() {
+      return this.filteredAgenda.filter(item => {
+        if (!item.tanggal) return false;
+        let parts = String(item.tanggal).split('T')[0].split('-');
+        if (parts.length !== 3) return false;
+        let y = parseInt(parts[0], 10);
+        let m = parseInt(parts[1], 10) - 1;
+        
+        // Cocokkan dengan tahun dan bulan aktif di kalender
+        if (y !== this.currentYear || m !== this.currentMonth) return false;
+        
+        // Hanya hitung yang belum lewat (belum selesai)
+        return !this.isPastAgenda(item.tanggal);
+      }).length;
+    },
+
     get filteredProyekOptions() {
       let activeCoord = this.authKoordinator;
       if (!activeCoord) return {};
@@ -267,6 +284,14 @@ function agendaApp() {
     isToday(dateStr) {
       let today = new Date();
       return dateStr === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    },
+
+    isPastAgenda(dateStr) {
+      if (!dateStr) return false;
+      let cleanDate = String(dateStr).split('T')[0];
+      let today = new Date();
+      let todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      return cleanDate < todayStr;
     },
 
     async checkAppUpdate(isBackground) {
