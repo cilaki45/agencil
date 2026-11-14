@@ -487,13 +487,40 @@ function agendaApp() {
         rose: 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100', 
         cyan: 'bg-cyan-50 text-cyan-800 border-cyan-200 hover:bg-cyan-100', 
         indigo: 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100', 
-        teal: 'bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100' 
+        teal: 'bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100',
+        red: 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100',
+        orange: 'bg-orange-50 text-orange-800 border-orange-200 hover:bg-orange-100',
+        yellow: 'bg-yellow-50 text-yellow-800 border-yellow-200 hover:bg-yellow-100',
+        lime: 'bg-lime-50 text-lime-800 border-lime-200 hover:bg-lime-100',
+        green: 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100',
+        sky: 'bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100',
+        violet: 'bg-violet-50 text-violet-800 border-violet-200 hover:bg-violet-100',
+        fuchsia: 'bg-fuchsia-50 text-fuchsia-800 border-fuchsia-200 hover:bg-fuchsia-100',
+        pink: 'bg-pink-50 text-pink-800 border-pink-200 hover:bg-pink-100'
       };
       return map[warna] || 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100';
     },
 
     getBadgeDotClass(warna) {
-      const map = { blue: 'bg-blue-600', emerald: 'bg-emerald-600', amber: 'bg-amber-600', purple: 'bg-purple-600', rose: 'bg-rose-600', cyan: 'bg-cyan-600', indigo: 'bg-indigo-600', teal: 'bg-teal-600' };
+      const map = { 
+        blue: 'bg-blue-600', 
+        emerald: 'bg-emerald-600', 
+        amber: 'bg-amber-600', 
+        purple: 'bg-purple-600', 
+        rose: 'bg-rose-600', 
+        cyan: 'bg-cyan-600', 
+        indigo: 'bg-indigo-600', 
+        teal: 'bg-teal-600',
+        red: 'bg-red-600',
+        orange: 'bg-orange-600',
+        yellow: 'bg-yellow-600',
+        lime: 'bg-lime-600',
+        green: 'bg-green-600',
+        sky: 'bg-sky-600',
+        violet: 'bg-violet-600',
+        fuchsia: 'bg-fuchsia-600',
+        pink: 'bg-pink-600'
+      };
       return map[warna] || 'bg-slate-500';
     }
   }
