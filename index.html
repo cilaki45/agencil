@@ -244,7 +244,7 @@
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-2">
             <h2 class="text-xl font-extrabold text-slate-900 uppercase tracking-tight" x-text="monthNames[currentMonth] + ' ' + currentYear"></h2>
-            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg text-xs border border-blue-200" x-text="filteredAgenda.length + ' Agenda'"></span>
+            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg text-xs border border-blue-200" x-text="currentMonthActiveCount + ' Agenda Aktif'"></span>
           </div>
         </div>
 
@@ -264,7 +264,7 @@
       <div class="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
         <div>
           <h2 class="text-base font-extrabold text-slate-900 uppercase tracking-tight" x-text="monthNames[currentMonth] + ' ' + currentYear"></h2>
-          <span class="text-[11px] text-blue-600 font-bold" x-text="filteredAgenda.length + ' Agenda Aktif'"></span>
+          <span class="text-[11px] text-blue-600 font-bold" x-text="currentMonthActiveCount + ' Agenda Aktif'"></span>
         </div>
         <div class="flex items-center gap-1.5">
           <button @click="goToToday()" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 font-semibold text-[11px] rounded-lg">Bulan Ini</button>
@@ -293,9 +293,15 @@
                   <template x-for="item in cell.agendas" :key="item.id_agenda">
                     <div @click="viewAgenda(item)" 
                          class="p-2 rounded-xl border text-xs font-medium cursor-pointer transition shadow-xs hover:shadow-md"
-                         :class="getBadgeBgClass(proyekList[item.id_proyek] ? proyekList[item.id_proyek].warna : 'blue')">
-                      <div class="text-[10px] font-bold opacity-75 uppercase tracking-wide truncate" x-text="proyekList[item.id_proyek] ? proyekList[item.id_proyek].nickname : item.id_proyek"></div>
-                      <div class="font-bold text-slate-900 truncate mt-0.5" x-text="item.nama_kegiatan"></div>
+                         :class="isPastAgenda(item.tanggal) ? 'bg-slate-100/90 text-slate-400 border-slate-200 opacity-75 hover:opacity-100' : getBadgeBgClass(proyekList[item.id_proyek] ? proyekList[item.id_proyek].warna : 'blue')">
+                      
+                      <div class="flex items-center justify-between gap-1">
+                        <div class="text-[10px] font-bold opacity-75 uppercase tracking-wide truncate" x-text="proyekList[item.id_proyek] ? proyekList[item.id_proyek].nickname : item.id_proyek"></div>
+                        <span x-show="isPastAgenda(item.tanggal)" class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-500 shrink-0">Selesai</span>
+                      </div>
+
+                      <div class="font-bold truncate mt-0.5" :class="isPastAgenda(item.tanggal) ? 'text-slate-500' : 'text-slate-900'" x-text="item.nama_kegiatan"></div>
+                      
                       <div class="text-[10px] opacity-80 mt-1 flex items-center gap-1">
                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span class="truncate" x-text="formatAgendaDate(item)"></span>
