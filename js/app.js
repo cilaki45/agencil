@@ -59,7 +59,6 @@ function agendaApp() {
       return [...new Set(coords)].sort();
     },
 
-    // Cek apakah user yang sedang login adalah superadmin
     get isSuperAdmin() {
       if (!this.authKoordinator) return false;
       let coordKey = this.authKoordinator.trim().toUpperCase();
@@ -154,12 +153,32 @@ function agendaApp() {
       return { nickname: proj.nickname, warna: proj.warna, count: this.getProjectCount(this.selectedProject) };
     },
 
+    // GETTER UTAMA: Hanya status Aktif & Urut Abjad A-Z
+    get sortedActiveProyekList() {
+      if (!this.proyekList) return {};
+      const filtered = {};
+      const sortedKeys = Object.keys(this.proyekList).filter(id => {
+        const p = this.proyekList[id];
+        let status = (p.status || 'Aktif').trim().toLowerCase();
+        return status === 'aktif' || status === 'active';
+      }).sort((a, b) => {
+        let nameA = (this.proyekList[a].nickname || '').toLowerCase();
+        let nameB = (this.proyekList[b].nickname || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      sortedKeys.forEach(id => {
+        filtered[id] = this.proyekList[id];
+      });
+      return filtered;
+    },
+
     get filteredMobileProjects() {
-      if (!this.projectSearch.trim()) return this.proyekList;
+      const base = this.sortedActiveProyekList;
+      if (!this.projectSearch.trim()) return base;
       const keyword = this.projectSearch.trim().toLowerCase();
       const filtered = {};
-      Object.keys(this.proyekList).forEach(id => {
-        const proj = this.proyekList[id];
+      Object.keys(base).forEach(id => {
+        const proj = base[id];
         if ((proj.nickname && proj.nickname.toLowerCase().includes(keyword)) || 
             (proj.koordinator && proj.koordinator.toLowerCase().includes(keyword)) ||
             (proj.nama_koordinator && proj.nama_koordinator.toLowerCase().includes(keyword)) ||
@@ -199,7 +218,6 @@ function agendaApp() {
       }).length;
     },
 
-    // Jika Superadmin, tampilkan SEMUA proyek di form pilihan proyek
     get filteredProyekOptions() {
       let activeCoord = this.authKoordinator;
       if (!activeCoord) return {};
