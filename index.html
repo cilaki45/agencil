@@ -526,7 +526,7 @@
             <div class="text-xs font-bold text-slate-900" x-text="viewAgendaData?.tanggal_tampil"></div>
             <div class="text-xs text-slate-600 font-medium mt-0.5 leading-relaxed" 
                  x-show="viewAgendaData?.jadwal_teks" 
-                 x-text="viewAgendaData?.jadwal_teks"></div>
+                 x-text="viewAgendaData ? formatAgendaDate(viewAgendaData) : ''"></div>
           </div>
         </div>
 
