@@ -297,14 +297,14 @@
                   <template x-for="item in cell.agendas" :key="item.id_agenda">
                     <div @click="viewAgenda(item)" 
                          class="p-2 rounded-xl border text-xs font-medium cursor-pointer transition shadow-xs hover:shadow-md"
-                         :class="isPastAgenda(item.tanggal) ? 'bg-slate-100/90 text-slate-400 border-slate-200 opacity-75 hover:opacity-100' : getBadgeBgClass(proyekList[item.id_proyek] ? proyekList[item.id_proyek].warna : 'blue')">
+                         :class="isPastAgenda(item) ? 'bg-slate-100/90 text-slate-400 border-slate-200 opacity-75 hover:opacity-100' : getBadgeBgClass(proyekList[item.id_proyek] ? proyekList[item.id_proyek].warna : 'blue')">
                       
                       <div class="flex items-center justify-between gap-1">
                         <div class="text-[10px] font-bold opacity-75 uppercase tracking-wide truncate" x-text="proyekList[item.id_proyek] ? proyekList[item.id_proyek].nickname : item.id_proyek"></div>
-                        <span x-show="isPastAgenda(item.tanggal)" class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-500 shrink-0">Selesai</span>
+                        <span x-show="isPastAgenda(item)" class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-500 shrink-0">Selesai</span>
                       </div>
 
-                      <div class="font-bold truncate mt-0.5" :class="isPastAgenda(item.tanggal) ? 'text-slate-500' : 'text-slate-900'" x-text="item.nama_kegiatan"></div>
+                      <div class="font-bold truncate mt-0.5" :class="isPastAgenda(item) ? 'text-slate-500' : 'text-slate-900'" x-text="item.nama_kegiatan"></div>
                       
                       <div class="text-[10px] opacity-80 mt-1 flex items-center gap-1">
                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -507,14 +507,12 @@
               <span class="truncate" x-text="viewAgendaData?.nickname"></span>
             </span>
 
-            <template x-if="viewAgendaData && viewAgendaData.sisa_hari !== null && viewAgendaData.sisa_hari !== undefined">
+            <template x-if="viewAgendaData">
               <span class="text-[11px] font-bold px-2 py-0.5 rounded-md shrink-0 border"
-                    :class="viewAgendaData.sisa_hari === 0 
-                      ? 'bg-amber-50 text-amber-700 border-amber-200' 
-                      : (viewAgendaData.sisa_hari > 0 
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                        : 'bg-slate-50 text-slate-500 border-slate-200')"
-                    x-text="viewAgendaData.sisa_hari === 0 ? 'Hari Ini' : (viewAgendaData.sisa_hari > 0 ? 'H-' + viewAgendaData.sisa_hari : 'Selesai')">
+                    :class="isPastAgenda(viewAgendaData) 
+                      ? 'bg-slate-50 text-slate-500 border-slate-200' 
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'"
+                    x-text="isPastAgenda(viewAgendaData) ? 'Selesai' : 'Aktif / Berjalan'">
               </span>
             </template>
           </div>
