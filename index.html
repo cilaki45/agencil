@@ -173,7 +173,7 @@
       </div>
     </header>
 
-    <aside :class="sidebarOpen ? 'w-full md:w-72' : 'w-full md:w-20'" class="hidden md:flex bg-slate-900 text-slate-300 flex-col transition-all duration-300 border-r border-slate-800 shrink-0 h-screen sticky top-0">
+    <aside :class="sidebarOpen ? 'w-full md:w-72' : 'w-full md:w-20'" class="hidden md:flex bg-slate-900 text-slate-300 flex-col transition-all duration-300 border-r border-slate-800 shrink-0 h-screen sticky top-0 overflow-hidden">
       
       <div class="p-5 flex items-center justify-between border-b border-slate-800">
         <div class="flex items-center gap-3 overflow-hidden">
@@ -185,7 +185,7 @@
             <p class="text-[11px] text-slate-400">Agenda SC45</p>
           </div>
         </div>
-        <button @click="toggleSidebar()" class="hidden md:flex w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 items-center justify-center transition">
+        <button @click="toggleSidebar()" class="hidden md:flex w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 items-center justify-center transition shrink-0">
           <svg class="w-4 h-4 transform transition-transform" :class="sidebarOpen ? '' : 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
         </button>
       </div>
@@ -205,6 +205,7 @@
         <div @click="selectAllProjects()" 
              role="button"
              tabindex="0"
+             title="Semua Proyek"
              class="group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer border"
              :class="isAllProjectsSelected ? 'bg-blue-600/15 text-white border-blue-500/40 shadow-sm' : 'border-transparent hover:bg-slate-800/70 text-slate-300'">
           <div class="flex items-center gap-3 truncate">
@@ -216,15 +217,16 @@
               <svg x-show="isAllProjectsSelected" class="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
               <svg x-show="!isAllProjectsSelected" class="w-3 h-3 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"></path></svg>
             </button>
-            <span class="truncate">Semua Proyek</span>
+            <span x-show="sidebarOpen" class="truncate">Semua Proyek</span>
           </div>
-          <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors" :class="isAllProjectsSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'" x-text="agendaList.length"></span>
+          <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors shrink-0" :class="isAllProjectsSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'" x-text="agendaList.length"></span>
         </div>
 
         <template x-for="(proj, id) in sortedFilteredDesktopProyekList" :key="id">
           <div @click="selectSingleProject(id)" 
                role="button"
                tabindex="0"
+               :title="proj.nickname"
                class="group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer border"
                :class="isProjectSelected(id) ? 'bg-slate-800/90 text-white border-slate-700/80 shadow-sm' : 'border-transparent hover:bg-slate-800/50 text-slate-400 hover:text-slate-200'">
             <div class="flex items-center gap-3 truncate">
@@ -235,7 +237,7 @@
                       :class="isProjectSelected(id) ? getSidebarCheckboxCheckedClass(proj.warna) : getSidebarCheckboxUncheckedClass(proj.warna)">
                 <svg x-show="isProjectSelected(id)" class="w-3 h-3 text-white stroke-[3] drop-shadow-2xs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
               </button>
-              <span class="truncate" x-text="proj.nickname"></span>
+              <span x-show="sidebarOpen" class="truncate" x-text="proj.nickname"></span>
             </div>
             <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold shrink-0 transition-colors" :class="isProjectSelected(id) ? 'bg-slate-700 text-slate-200' : 'bg-slate-800/80 text-slate-500 group-hover:text-slate-400'" x-text="getProjectCount(id)"></span>
           </div>
@@ -244,35 +246,49 @@
 
       <div class="p-4 border-t border-slate-800 space-y-2.5">
         <template x-if="!authKoordinator">
-          <button @click="openLoginModal = true" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2 text-xs cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+          <button @click="openLoginModal = true" title="Login Koordinator" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
             <span x-show="sidebarOpen">Login Koordinator</span>
           </button>
         </template>
 
         <template x-if="authKoordinator">
-          <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 space-y-1.5">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-1.5">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-[11px] text-slate-400 font-medium">Aktif:</span>
+          <div>
+            <!-- Tampilan penuh saat sidebar terbuka -->
+            <div x-show="sidebarOpen" class="bg-slate-800 border border-slate-700 rounded-xl p-3 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></div>
+                  <span class="text-[11px] text-slate-400 font-medium">Aktif:</span>
+                </div>
+                <button @click="logoutSession()" class="text-rose-400 hover:text-rose-300 font-semibold underline text-[11px] cursor-pointer shrink-0">Keluar</button>
               </div>
-              <button @click="logoutSession()" class="text-rose-400 hover:text-rose-300 font-semibold underline text-[11px] cursor-pointer">Keluar</button>
+              <div class="text-white font-bold uppercase tracking-wide text-xs truncate px-0.5" x-text="authKoordinator"></div>
             </div>
-            <div class="text-white font-bold uppercase tracking-wide text-xs truncate px-0.5" x-text="authKoordinator"></div>
+
+            <!-- Tampilan ringkas saat sidebar dimampatkan -->
+            <button x-show="!sidebarOpen"
+                    @click="logoutSession()"
+                    :title="'Keluar Sesi (' + authKoordinator + ')'"
+                    class="w-full bg-slate-800 hover:bg-rose-950/70 border border-slate-700 hover:border-rose-700/70 text-rose-400 rounded-xl py-2.5 flex flex-col items-center justify-center gap-1 transition cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+            </button>
           </div>
         </template>
 
         <template x-if="authKoordinator">
-          <button @click="openAddModal()" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2 text-xs cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <button @click="openAddModal()" title="Buat Agenda Baru" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2 text-xs cursor-pointer">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             <span x-show="sidebarOpen">Buat Agenda Baru</span>
           </button>
         </template>
 
         <template x-if="authKoordinator">
-          <button @click="openPinModal()" class="w-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs cursor-pointer border border-slate-700">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+          <button @click="openPinModal()" title="Ubah PIN Akun" class="w-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs cursor-pointer border border-slate-700">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
             <span x-show="sidebarOpen">Ubah PIN Akun</span>
           </button>
         </template>
@@ -313,6 +329,203 @@
           <button @click="nextMonth()" class="w-8 h-8 bg-slate-100 rounded-lg text-slate-600 flex items-center justify-center font-bold">›</button>
         </div>
       </div>
+
+      <!-- Panel Proyeksi Usulan Dana Proyek (UDP) - Hanya tampil saat login -->
+      <section x-show="udpSummary.visible" x-cloak class="px-3 md:px-6 pt-3 md:pt-5 shrink-0">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5 md:p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h3 class="text-xs font-extrabold text-slate-900 tracking-tight">Proyeksi Usulan Dana Proyek (UDP)</h3>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 truncate" x-text="udpSummary.scopeLabel"></span>
+                </div>
+                <p class="text-[10px] text-slate-500">Rekap kebutuhan dana</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+              <div x-show="hasActiveFilter" x-cloak class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900 text-white text-[11px] font-semibold max-w-full">
+                <span class="truncate">Filter: <strong x-text="activeFilterSummaryLabel"></strong></span>
+                <button type="button" @click="resetAllFilters()" class="ml-1 px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] font-bold transition shrink-0">Reset</button>
+              </div>
+
+              <button type="button"
+                      @click="showUdpBreakdown = !showUdpBreakdown"
+                      class="text-[11px] font-semibold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5 shrink-0">
+                <span x-text="showUdpBreakdown ? 'Sembunyikan Rincian' : 'Rincian per Proyek (' + udpSummary.perProyek.length + ')'"></span>
+                <svg class="w-3 h-3 transform transition-transform" :class="showUdpBreakdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <!-- Card 1: Mendesak (H-2) -->
+            <div @click="toggleUdpFilter('h2')"
+                 role="button"
+                 tabindex="0"
+                 title="Klik untuk memfilter agenda Mendesak (H-2) di kalender"
+                 class="group p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                 :class="[
+                   udpSummary.mendesakH2 > 0
+                     ? 'bg-amber-50/80 border-amber-200 hover:bg-amber-100/90 hover:border-amber-400 hover:shadow-amber-500/15'
+                     : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 hover:border-slate-400 hover:shadow-slate-400/15',
+                   udpFilterMode === 'h2' ? 'ring-2 ring-amber-500 bg-amber-100/80 border-amber-400 shadow-md' : ''
+                 ]">
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate"
+                      :class="udpSummary.mendesakH2 > 0 ? 'text-amber-700' : 'text-slate-500'">Mendesak (H-2)</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap shrink-0"
+                      :class="udpSummary.mendesakH2 > 0 ? 'bg-amber-200/70 text-amber-900' : 'bg-slate-200/70 text-slate-600'"
+                      x-text="udpSummary.countMendesakH2 + ' Agd'"></span>
+              </div>
+              <div class="flex items-end justify-between gap-2 mt-1">
+                <div class="text-sm md:text-base font-extrabold tracking-tight"
+                     :class="udpSummary.mendesakH2 > 0 ? 'text-amber-950' : 'text-slate-700'"
+                     x-text="formatRupiah(udpSummary.mendesakH2)"></div>
+                <span class="text-[10px] font-bold transition-opacity shrink-0"
+                      :class="udpFilterMode === 'h2' ? 'text-amber-800 opacity-100' : 'text-amber-700 opacity-0 group-hover:opacity-100'"
+                      x-text="udpFilterMode === 'h2' ? 'Aktif ✓' : 'Filter →'"></span>
+              </div>
+            </div>
+
+            <!-- Card 2: Minggu Ini (H-3 s.d. H-7) -->
+            <div @click="toggleUdpFilter('h7')"
+                 role="button"
+                 tabindex="0"
+                 title="Klik untuk memfilter agenda Minggu Ini (H-3 s.d. H-7) di kalender"
+                 class="group p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-blue-100/80 hover:border-blue-400 hover:shadow-md hover:shadow-blue-500/15 active:translate-y-0"
+                 :class="udpFilterMode === 'h7' ? 'ring-2 ring-blue-500 bg-blue-100/70 border-blue-400 shadow-md' : ''">
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-blue-700">Minggu Ini (H-3 s.d. H-7)</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 whitespace-nowrap shrink-0"
+                      x-text="udpSummary.countMingguIniH7 + ' Agd'"></span>
+              </div>
+              <div class="flex items-end justify-between gap-2 mt-1">
+                <div class="text-sm md:text-base font-extrabold text-blue-950 tracking-tight"
+                     x-text="formatRupiah(udpSummary.mingguIniH7)"></div>
+                <span class="text-[10px] font-bold text-blue-700 transition-opacity shrink-0"
+                      :class="udpFilterMode === 'h7' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+                      x-text="udpFilterMode === 'h7' ? 'Aktif ✓' : 'Filter →'"></span>
+              </div>
+            </div>
+
+            <!-- Card 3: Minggu Depan (H-8 s.d. H-14) -->
+            <div @click="toggleUdpFilter('h14')"
+                 role="button"
+                 tabindex="0"
+                 title="Klik untuk memfilter agenda Minggu Depan (H-8 s.d. H-14) di kalender"
+                 class="group p-3 rounded-xl bg-indigo-50/60 border border-indigo-200/80 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-indigo-100/80 hover:border-indigo-400 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0"
+                 :class="udpFilterMode === 'h14' ? 'ring-2 ring-indigo-500 bg-indigo-100/70 border-indigo-400 shadow-md' : ''">
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-indigo-700">Minggu Depan (H-8 s.d. H-14)</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 whitespace-nowrap shrink-0"
+                      x-text="udpSummary.countMingguDepanH14 + ' Agd'"></span>
+              </div>
+              <div class="flex items-end justify-between gap-2 mt-1">
+                <div class="text-sm md:text-base font-extrabold text-indigo-950 tracking-tight"
+                     x-text="formatRupiah(udpSummary.mingguDepanH14)"></div>
+                <span class="text-[10px] font-bold text-indigo-700 transition-opacity shrink-0"
+                      :class="udpFilterMode === 'h14' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+                      x-text="udpFilterMode === 'h14' ? 'Aktif ✓' : 'Filter →'"></span>
+              </div>
+            </div>
+
+            <!-- Card 4: Total Kebutuhan Dana -->
+            <div @click="toggleUdpFilter('all_udp')"
+                 role="button"
+                 tabindex="0"
+                 title="Klik untuk memfilter seluruh agenda yang memiliki pengajuan UDP di kalender"
+                 class="group p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/90 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-emerald-100/80 hover:border-emerald-400 hover:shadow-md hover:shadow-emerald-500/15 active:translate-y-0"
+                 :class="udpFilterMode === 'all_udp' ? 'ring-2 ring-emerald-500 bg-emerald-100/70 border-emerald-400 shadow-md' : ''">
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-emerald-700">Total Kebutuhan Dana</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0"
+                      x-text="udpSummary.countTotalKebutuhan + ' Agd'"></span>
+              </div>
+              <div class="flex items-end justify-between gap-2 mt-1">
+                <div class="text-sm md:text-base font-extrabold text-emerald-950 tracking-tight"
+                     x-text="formatRupiah(udpSummary.totalKebutuhan)"></div>
+                <span class="text-[10px] font-bold text-emerald-700 transition-opacity shrink-0"
+                      :class="udpFilterMode === 'all_udp' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+                      x-text="udpFilterMode === 'all_udp' ? 'Aktif ✓' : 'Filter →'"></span>
+              </div>
+            </div>
+          </div>
+
+          <div x-show="showUdpBreakdown"
+               x-transition
+               class="pt-2 border-t border-slate-100 overflow-x-auto">
+            <template x-if="udpSummary.perProyek.length > 0">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                    <th class="py-2 pr-3 whitespace-nowrap">Proyek</th>
+                    <th class="py-2 px-3 whitespace-nowrap">Koordinator</th>
+                    <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h2' ? 'text-amber-700 bg-amber-50/70' : ''">Mendesak (H-2)</th>
+                    <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h7' ? 'text-blue-700 bg-blue-50/70' : ''">Minggu Ini</th>
+                    <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h14' ? 'text-indigo-700 bg-indigo-50/70' : ''">Minggu Depan</th>
+                    <th class="py-2 pl-3 pr-2 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'all_udp' ? 'text-emerald-700 bg-emerald-50/70' : ''">Total Kebutuhan</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <template x-for="p in udpSummary.perProyek" :key="p.id_proyek">
+                    <tr @click="selectUdpProjectRow(p.id_proyek)"
+                        class="cursor-pointer transition"
+                        :class="isProjectSelected(p.id_proyek) ? 'bg-blue-50/80 hover:bg-blue-100/70' : 'hover:bg-slate-50'">
+                      <td class="py-2 pr-3 font-bold text-slate-800 whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full shrink-0" :class="getBadgeDotClass(p.warna)"></span>
+                          <span x-text="p.nickname"></span>
+                          <span class="text-[10px] font-semibold text-slate-400" x-text="'(' + p.displayCount + ')'"></span>
+                          <template x-for="(f, fIdx) in (p.files || [])" :key="fIdx">
+                            <a :href="f.url"
+                               @click.stop
+                               :title="'Download RAB (' + f.agendaName + '): ' + f.name"
+                               class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shrink-0">
+                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                              <span x-text="p.files.length > 1 ? 'RAB ' + (fIdx + 1) : 'RAB'"></span>
+                            </a>
+                          </template>
+                        </div>
+                      </td>
+                      <td class="py-2 px-3 text-slate-600 font-medium uppercase whitespace-nowrap">
+                        <span class="block truncate max-w-[92px] sm:max-w-[180px] md:max-w-none"
+                              :title="p.koordinator"
+                              x-text="p.koordinator"></span>
+                      </td>
+                      <td class="py-2 px-3 text-right font-bold whitespace-nowrap"
+                          :class="[p.mendesakH2 > 0 ? 'text-amber-700' : 'text-slate-400', udpFilterMode === 'h2' ? 'bg-amber-50/50' : '']"
+                          x-text="formatRupiah(p.mendesakH2)"></td>
+                      <td class="py-2 px-3 text-right font-semibold whitespace-nowrap"
+                          :class="[p.mingguIniH7 > 0 ? 'text-blue-700' : 'text-slate-400', udpFilterMode === 'h7' ? 'bg-blue-50/50' : '']"
+                          x-text="formatRupiah(p.mingguIniH7)"></td>
+                      <td class="py-2 px-3 text-right font-semibold whitespace-nowrap"
+                          :class="[p.mingguDepanH14 > 0 ? 'text-indigo-700' : 'text-slate-400', udpFilterMode === 'h14' ? 'bg-indigo-50/50' : '']"
+                          x-text="formatRupiah(p.mingguDepanH14)"></td>
+                      <td class="py-2 pl-3 pr-2 text-right font-extrabold text-slate-900 whitespace-nowrap"
+                          :class="udpFilterMode === 'all_udp' ? 'bg-emerald-50/50' : ''"
+                          x-text="formatRupiah(p.totalKebutuhan)"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </template>
+            <template x-if="udpSummary.perProyek.length === 0">
+              <div class="py-4 text-center text-xs text-slate-400 font-medium">
+                Tidak ada proyek dengan pengajuan UDP pada kategori <strong class="text-slate-600" x-text="udpFilterLabel || 'ini'"></strong>.
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
 
       <div class="flex-1 p-3 md:p-6 overflow-x-auto flex flex-col">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-w-[700px] md:min-w-[800px] flex-1 flex flex-col">
@@ -378,7 +591,7 @@
         <button type="button" @click="openLoginModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition">✕</button>
       </div>
 
-      <div class="space-y-4 text-xs">
+      <div class="space-y-4 text-xs" x-data="{ showLoginPin: false }">
         <div>
           <label class="block font-semibold text-slate-700 mb-1.5">Pilih Koordinator</label>
           <select x-model="loginForm.koordinator" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
@@ -391,7 +604,15 @@
 
         <div>
           <label class="block font-semibold text-slate-700 mb-1.5">PIN Rahasia (4-6 Digit)</label>
-          <input type="password" x-model="loginForm.pin" placeholder="••••" maxlength="6" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium tracking-widest text-center">
+          <div class="relative flex items-center">
+            <input :type="showLoginPin ? 'text' : 'password'" x-model="loginForm.pin" placeholder="••••" maxlength="6" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-3 pr-10 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium tracking-widest text-center">
+            <button type="button" @click="showLoginPin = !showLoginPin" class="absolute right-3 text-slate-400 hover:text-slate-700 focus:outline-none transition">
+              <!-- Eye Open -->
+              <svg x-show="!showLoginPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              <!-- Eye Closed -->
+              <svg x-show="showLoginPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.03 10.03 0 012.21-3.585M9.88 9.88l3.24 3.24M3 3l18 18"></path></svg>
+            </button>
+          </div>
         </div>
 
         <div class="pt-3 flex gap-2">
@@ -509,6 +730,68 @@
           <input type="text" x-model="form.keterangan" placeholder="Contoh: Menunggu konfirmasi narasumber / Ruang rapat Lt. 3" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 transition font-medium">
         </div>
 
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="font-semibold text-slate-700">Usulan Dana Proyek / UDP (Opsional)</label>
+            <span class="text-[10px] text-slate-400 font-medium">Isi 0 jika tanpa pengajuan dana</span>
+          </div>
+          <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-600 focus-within:bg-white transition">
+            <span class="px-3.5 py-3 bg-slate-100 text-slate-600 font-bold text-xs border-r border-slate-300 select-none">Rp</span>
+            <input type="text"
+                   inputmode="numeric"
+                   :value="form.udp_display"
+                   @input="handleUdpInput($event.target.value)"
+                   placeholder="0"
+                   class="w-full bg-transparent px-3 py-3 font-bold text-slate-900 outline-none">
+          </div>
+        </div>
+
+        <!-- Upload File Rincian Usulan Dana (Khusus Excel) -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="font-semibold text-slate-700">File Rincian Usulan Dana (Excel)</label>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Hanya .xlsx / .xls</span>
+          </div>
+
+          <!-- Tampilkan file tersimpan jika sudah pernah di-upload -->
+          <template x-if="form.file_udp_url">
+            <div class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-[11px] font-semibold text-emerald-900 truncate" x-text="form.file_udp_name || 'Rincian_UDP.xlsx'"></span>
+              </div>
+              <a :href="form.file_udp_url"
+                 class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shrink-0 transition">
+                Download ↓
+              </a>
+            </div>
+          </template>
+
+          <div class="bg-slate-50 border border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-3 transition">
+            <input id="udpExcelInput"
+                   type="file"
+                   accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                   @change="handleUdpFileChange($event)"
+                   class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer cursor-pointer">
+            <p class="text-[10px] text-slate-400 mt-1.5" x-text="form.file_udp_url ? 'Upload file baru untuk menimpa/revisi file lama di folder bulan kegiatan.' : 'Otomatis masuk ke folder YYYY-MM di Google Drive & di-rename sesuai agenda.'"></p>
+          </div>
+
+          <!-- Preview file Excel baru yang siap diunggah -->
+          <template x-if="form.udp_file_orig_name">
+            <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-[11px] font-bold text-blue-900 truncate" x-text="'Siap upload: ' + form.udp_file_orig_name"></div>
+                <div class="text-[10px] text-blue-600" x-text="'Ukuran: ' + form.udp_file_size_label"></div>
+              </div>
+              <button type="button" @click="clearUdpFile()" class="px-2 py-1 rounded-lg bg-white hover:bg-rose-50 text-rose-600 border border-blue-200 text-[10px] font-bold shrink-0 transition">
+                ✕ Batal
+              </button>
+            </div>
+          </template>
+        </div>
+
         <div class="pt-4 flex gap-2">
           <button type="button" @click="openModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl transition text-xs">Batal</button>
           
@@ -526,7 +809,7 @@
                   class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/20 transition flex justify-center items-center gap-2">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             <span x-show="!submitting" x-text="form.id_agenda ? 'Simpan Perubahan' : 'Simpan Baru'"></span>
-            <span x-show="submitting">Memproses...</span>
+            <span x-show="submitting" x-text="form.udp_file_base64 ? 'Mengunggah Excel...' : 'Memproses...'"></span>
           </button>
         </div>
       </form>
@@ -600,8 +883,26 @@
         </div>
 
         <div class="space-y-2.5 text-xs"
-             x-show="viewAgendaData?.tim_durasi || viewAgendaData?.lokasi || viewAgendaData?.paket_peserta || viewAgendaData?.status || viewAgendaData?.keterangan">
+             x-show="viewAgendaData?.tim_durasi || viewAgendaData?.lokasi || viewAgendaData?.paket_peserta || viewAgendaData?.status || viewAgendaData?.keterangan || (canViewAgendaUdp(viewAgendaData) && (Number(viewAgendaData?.udp) > 0 || viewAgendaData?.file_udp_url || viewAgendaData?.file_udp))">
           
+          <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/90 shadow-2xs space-y-2"
+               x-show="canViewAgendaUdp(viewAgendaData) && (Number(viewAgendaData?.udp) > 0 || viewAgendaData?.file_udp_url || viewAgendaData?.file_udp)">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="text-emerald-700 text-[10px] font-bold uppercase tracking-wider">Usulan Dana Proyek (UDP)</div>
+                <div class="font-extrabold text-sm text-emerald-950 break-words leading-relaxed mt-0.5" x-text="formatRupiah(viewAgendaData?.udp)"></div>
+              </div>
+              <a x-show="viewAgendaData?.file_udp_url || viewAgendaData?.file_udp"
+                 :href="viewAgendaData?.file_udp_url || viewAgendaData?.file_udp || '#'"
+                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow-xs transition shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Rincian RAB ↓</span>
+              </a>
+            </div>
+          </div>
+
           <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1" x-show="viewAgendaData?.tim_durasi">
             <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Tim & Durasi</div>
             <div class="font-bold text-slate-800 break-words leading-relaxed" x-text="viewAgendaData?.tim_durasi"></div>
@@ -667,18 +968,34 @@
         </div>
         <button @click="openPinModalBox = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">✕</button>
       </div>
-      <form @submit.prevent="submitChangePin" class="space-y-4 text-xs">
+      <form @submit.prevent="submitChangePin" class="space-y-4 text-xs" x-data="{ showOldPin: false, showNewPin: false }">
         <div>
           <label class="block font-semibold text-slate-700 mb-1.5">Akun Koordinator Aktif</label>
           <input type="text" :value="authKoordinator" disabled class="w-full bg-slate-100 border border-slate-300 rounded-xl p-3 text-xs font-bold uppercase text-slate-800 cursor-not-allowed">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1.5">PIN Lama</label>
-          <input type="password" x-model="pinForm.old_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-center tracking-widest font-medium">
+          <div class="relative flex items-center">
+            <input :type="showOldPin ? 'text' : 'password'" x-model="pinForm.old_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-3 pr-10 text-center tracking-widest font-medium">
+            <button type="button" @click="showOldPin = !showOldPin" class="absolute right-3 text-slate-400 hover:text-slate-700 focus:outline-none transition">
+              <!-- Eye Open -->
+              <svg x-show="!showOldPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              <!-- Eye Closed -->
+              <svg x-show="showOldPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.03 10.03 0 012.21-3.585M9.88 9.88l3.24 3.24M3 3l18 18"></path></svg>
+            </button>
+          </div>
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1.5">PIN Baru (4-6 Digit)</label>
-          <input type="password" x-model="pinForm.new_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-center tracking-widest font-medium">
+          <div class="relative flex items-center">
+            <input :type="showNewPin ? 'text' : 'password'" x-model="pinForm.new_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-3 pr-10 text-center tracking-widest font-medium">
+            <button type="button" @click="showNewPin = !showNewPin" class="absolute right-3 text-slate-400 hover:text-slate-700 focus:outline-none transition">
+              <!-- Eye Open -->
+              <svg x-show="!showNewPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              <!-- Eye Closed -->
+              <svg x-show="showNewPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.03 10.03 0 012.21-3.585M9.88 9.88l3.24 3.24M3 3l18 18"></path></svg>
+            </button>
+          </div>
         </div>
         <div class="pt-2 flex gap-2">
           <button type="button" @click="openPinModalBox = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl">Batal</button>
@@ -715,6 +1032,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=16"></script>
+  <script src="js/app.js?v=22"></script>
 </body>
 </html>
