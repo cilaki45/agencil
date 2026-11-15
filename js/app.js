@@ -15,6 +15,7 @@ function agendaApp() {
     },
     openProjectSheet: false,
     projectSearch: '',
+    sidebarProjectSearch: '',
     viewAgendaData: null,
     viewModal: false,
     openModal: false,
@@ -242,6 +243,23 @@ function agendaApp() {
       });
       sortedKeys.forEach(id => {
         filtered[id] = this.proyekList[id];
+      });
+      return filtered;
+    },
+
+    get sortedFilteredDesktopProyekList() {
+      const base = this.sortedActiveProyekList;
+      if (!this.sidebarProjectSearch.trim()) return base;
+      const keyword = this.sidebarProjectSearch.trim().toLowerCase();
+      const filtered = {};
+      Object.keys(base).forEach(id => {
+        const proj = base[id];
+        if ((proj.nickname && proj.nickname.toLowerCase().includes(keyword)) || 
+            (proj.koordinator && proj.koordinator.toLowerCase().includes(keyword)) ||
+            (proj.nama_koordinator && proj.nama_koordinator.toLowerCase().includes(keyword)) ||
+            (proj.nama_lengkap && proj.nama_lengkap.toLowerCase().includes(keyword))) {
+          filtered[id] = proj;
+        }
       });
       return filtered;
     },
