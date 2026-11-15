@@ -16,10 +16,10 @@
     [x-cloak] { display: none !important; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @media (min-width: 768px) {
-      .desktop-smart-rows {
-        grid-template-rows: var(--cal-rows);
-      }
+    
+    /* Smart calendar rows diterapkan global untuk Mobile & Desktop */
+    .smart-cal-rows {
+      grid-template-rows: var(--cal-rows);
     }
   </style>
 </head>
@@ -321,7 +321,8 @@
             <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
           </div>
 
-          <div class="grid grid-cols-7 bg-slate-200 gap-px md:flex-1 desktop-smart-rows"
+          <!-- Terapkan smart-cal-rows agar tinggi row mobile & desktop sama-sama presisi tanpa space kosong -->
+          <div class="grid grid-cols-7 bg-slate-200 gap-px md:flex-1 smart-cal-rows"
                :style="`--cal-rows: ${Array.from({length: calendarGrid.length / 7}, (_, w) => calendarGrid.slice(w * 7, w * 7 + 7).some(c => c.agendas.length > 0) ? 'auto' : 'minmax(55px, 1fr)').join(' ')}`">
             <template x-for="cell in calendarGrid" :key="cell.dateStr">
               <div class="bg-white p-2 flex flex-col transition hover:bg-slate-50/50" 
@@ -715,6 +716,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=13"></script>
+  <script src="js/app.js?v=15"></script>
 </body>
 </html>
