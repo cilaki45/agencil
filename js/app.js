@@ -740,6 +740,52 @@ function agendaApp() {
         pink: 'bg-pink-600'
       };
       return map[warna] || 'bg-slate-500';
+    },
+
+    getSidebarCheckboxUncheckedClass(warna) {
+      const map = {
+        blue: 'bg-slate-900/70 border-blue-500/70 group-hover:border-blue-400',
+        emerald: 'bg-slate-900/70 border-emerald-500/70 group-hover:border-emerald-400',
+        amber: 'bg-slate-900/70 border-amber-500/70 group-hover:border-amber-400',
+        purple: 'bg-slate-900/70 border-purple-500/70 group-hover:border-purple-400',
+        rose: 'bg-slate-900/70 border-rose-500/70 group-hover:border-rose-400',
+        cyan: 'bg-slate-900/70 border-cyan-500/70 group-hover:border-cyan-400',
+        indigo: 'bg-slate-900/70 border-indigo-500/70 group-hover:border-indigo-400',
+        teal: 'bg-slate-900/70 border-teal-500/70 group-hover:border-teal-400',
+        red: 'bg-slate-900/70 border-red-500/70 group-hover:border-red-400',
+        orange: 'bg-slate-900/70 border-orange-500/70 group-hover:border-orange-400',
+        yellow: 'bg-slate-900/70 border-yellow-500/70 group-hover:border-yellow-400',
+        lime: 'bg-slate-900/70 border-lime-500/70 group-hover:border-lime-400',
+        green: 'bg-slate-900/70 border-green-500/70 group-hover:border-green-400',
+        sky: 'bg-slate-900/70 border-sky-500/70 group-hover:border-sky-400',
+        violet: 'bg-slate-900/70 border-violet-500/70 group-hover:border-violet-400',
+        fuchsia: 'bg-slate-900/70 border-fuchsia-500/70 group-hover:border-fuchsia-400',
+        pink: 'bg-slate-900/70 border-pink-500/70 group-hover:border-pink-400'
+      };
+      return map[warna] || 'bg-slate-900/70 border-slate-500/70 group-hover:border-slate-400';
+    },
+
+    getSidebarCheckboxCheckedClass(warna) {
+      const map = {
+        blue: 'bg-blue-600 border-blue-500 shadow-xs shadow-blue-600/40',
+        emerald: 'bg-emerald-600 border-emerald-500 shadow-xs shadow-emerald-600/40',
+        amber: 'bg-amber-600 border-amber-500 shadow-xs shadow-amber-600/40',
+        purple: 'bg-purple-600 border-purple-500 shadow-xs shadow-purple-600/40',
+        rose: 'bg-rose-600 border-rose-500 shadow-xs shadow-rose-600/40',
+        cyan: 'bg-cyan-600 border-cyan-500 shadow-xs shadow-cyan-600/40',
+        indigo: 'bg-indigo-600 border-indigo-500 shadow-xs shadow-indigo-600/40',
+        teal: 'bg-teal-600 border-teal-500 shadow-xs shadow-teal-600/40',
+        red: 'bg-red-600 border-red-500 shadow-xs shadow-red-600/40',
+        orange: 'bg-orange-600 border-orange-500 shadow-xs shadow-orange-600/40',
+        yellow: 'bg-yellow-600 border-yellow-500 shadow-xs shadow-yellow-600/40',
+        lime: 'bg-lime-600 border-lime-500 shadow-xs shadow-lime-600/40',
+        green: 'bg-green-600 border-green-500 shadow-xs shadow-green-600/40',
+        sky: 'bg-sky-600 border-sky-500 shadow-xs shadow-sky-600/40',
+        violet: 'bg-violet-600 border-violet-500 shadow-xs shadow-violet-600/40',
+        fuchsia: 'bg-fuchsia-600 border-fuchsia-500 shadow-xs shadow-fuchsia-600/40',
+        pink: 'bg-pink-600 border-pink-500 shadow-xs shadow-pink-600/40'
+      };
+      return map[warna] || 'bg-slate-600 border-slate-500 shadow-xs';
     }
   }
 }
