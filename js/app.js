@@ -7,6 +7,7 @@ function agendaApp() {
     proyekList: {},
     users: {},
     selectedProjects: ['ALL'],
+    udpFilterMode: '', // '' | 'h2' | 'h7' | 'h14' | 'all_udp'
     autoRefreshTimer: null,
     initialHtml: '',
     sidebarOpen: true,
@@ -16,6 +17,7 @@ function agendaApp() {
     openProjectSheet: false,
     projectSearch: '',
     sidebarProjectSearch: '',
+    showUdpBreakdown: false,
     viewAgendaData: null,
     viewModal: false,
     openModal: false,
@@ -42,6 +44,14 @@ function agendaApp() {
       lokasi: '', 
       status: 'Fix',
       keterangan: '', 
+      udp: 0,
+      udp_display: '',
+      file_udp_url: '',
+      file_udp_name: '',
+      udp_file_base64: '',
+      udp_file_orig_name: '',
+      udp_file_mime: '',
+      udp_file_size_label: '',
       koordinator_input: '', 
       pin_input: '' 
     },
@@ -57,6 +67,26 @@ function agendaApp() {
       return this.selectedProjects.includes('ALL') || this.selectedProjects.length === 0;
     },
 
+    get hasActiveFilter() {
+      return Boolean(this.udpFilterMode) || !this.isAllProjectsSelected;
+    },
+
+    get activeFilterSummaryLabel() {
+      const parts = [];
+      if (!this.isAllProjectsSelected) {
+        parts.push(this.selectedProjectInfo.nickname);
+      }
+      if (this.udpFilterMode) {
+        parts.push(this.udpFilterLabel);
+      }
+      return parts.join(' • ');
+    },
+
+    resetAllFilters() {
+      this.udpFilterMode = '';
+      this.selectAllProjects();
+    },
+
     isProjectSelected(id) {
       return !this.isAllProjectsSelected && this.selectedProjects.includes(id);
     },
@@ -70,6 +100,38 @@ function agendaApp() {
         this.selectedProjects = ['ALL'];
       } else {
         this.selectedProjects = [id];
+      }
+    },
+
+    selectUdpProjectRow(idProyek) {
+      if (!idProyek) return;
+      this.selectedProjects = [idProyek];
+      if (!this.udpFilterMode) {
+        this.udpFilterMode = 'all_udp';
+      }
+      this.jumpToFirstFilteredMonth();
+    },
+
+    jumpToFirstFilteredMonth() {
+      const matched = this.filteredAgenda;
+      if (matched.length > 0) {
+        const hasInCurrentMonth = matched.some(item => {
+          if (!item.tanggal) return false;
+          let parts = String(item.tanggal).split('T')[0].split('-');
+          if (parts.length !== 3) return false;
+          return parseInt(parts[0], 10) === this.currentYear && (parseInt(parts[1], 10) - 1) === this.currentMonth;
+        });
+
+        if (!hasInCurrentMonth) {
+          let firstWithDate = matched.find(item => item.tanggal);
+          if (firstWithDate) {
+            let parts = String(firstWithDate.tanggal).split('T')[0].split('-');
+            if (parts.length === 3) {
+              this.currentYear = parseInt(parts[0], 10);
+              this.currentMonth = parseInt(parts[1], 10) - 1;
+            }
+          }
+        }
       }
     },
 
@@ -108,6 +170,334 @@ function agendaApp() {
         return true;
       }
       return false;
+    },
+
+    get authCoordinatorFullName() {
+      if (!this.authKoordinator) return '';
+      let coordKey = this.authKoordinator.trim().toUpperCase();
+
+      if (this.users && this.users[coordKey]) {
+        let userFull = this.users[coordKey].nama_koordinator || this.users[coordKey].nama_lengkap;
+        if (userFull && String(userFull).trim() !== '') {
+          return String(userFull).trim();
+        }
+      }
+
+      const matchedProject = Object.values(this.proyekList || {}).find(p => {
+        return (p.koordinator || '').trim().toUpperCase() === coordKey &&
+               ((p.nama_koordinator && String(p.nama_koordinator).trim() !== '') ||
+                (p.nama_lengkap && String(p.nama_lengkap).trim() !== ''));
+      });
+
+      if (matchedProject) {
+        return String(matchedProject.nama_koordinator || matchedProject.nama_lengkap).trim();
+      }
+
+      return this.authKoordinator;
+    },
+
+    formatRupiah(angka) {
+      let num = Number(angka) || 0;
+      return 'Rp ' + num.toLocaleString('id-ID');
+    },
+
+    formatRibuan(angka) {
+      let num = parseInt(String(angka || '0').replace(/[^0-9]/g, ''), 10) || 0;
+      return num > 0 ? num.toLocaleString('id-ID') : '';
+    },
+
+    handleUdpInput(val) {
+      let cleanNum = parseInt(String(val || '0').replace(/[^0-9]/g, ''), 10) || 0;
+      this.form.udp = cleanNum;
+      this.form.udp_display = cleanNum > 0 ? cleanNum.toLocaleString('id-ID') : '';
+    },
+
+    handleUdpFileChange(event) {
+      const file = event.target && event.target.files ? event.target.files[0] : null;
+      if (!file) {
+        this.clearUdpFile();
+        return;
+      }
+
+      const fileName = file.name || '';
+      const isExcelExt = /\.(xlsx|xls|xlsm)$/i.test(fileName);
+      const allowedMimes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'application/vnd.ms-excel.sheet.macroenabled.12',
+        'application/octet-stream',
+        ''
+      ];
+      const fileMime = (file.type || '').toLowerCase();
+
+      if (!isExcelExt || !allowedMimes.includes(fileMime)) {
+        event.target.value = '';
+        this.clearUdpFile();
+        this.showToast('Format file ditolak! Hanya file Excel (.xlsx, .xls, .xlsm) yang diperbolehkan.', 'error');
+        return;
+      }
+
+      const maxBytes = 10 * 1024 * 1024; // 10 MB
+      if (file.size > maxBytes) {
+        event.target.value = '';
+        this.clearUdpFile();
+        this.showToast('Ukuran file Excel maksimal 10 MB.', 'error');
+        return;
+      }
+
+      const sizeKb = Math.max(1, Math.round(file.size / 1024));
+      const sizeLabel = sizeKb >= 1024 ? (sizeKb / 1024).toFixed(1) + ' MB' : sizeKb + ' KB';
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const resultStr = String(reader.result || '');
+        const base64Part = resultStr.includes(',') ? resultStr.split(',')[1] : resultStr;
+        this.form.udp_file_base64 = base64Part;
+        this.form.udp_file_orig_name = fileName;
+        this.form.udp_file_mime = file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        this.form.udp_file_size_label = sizeLabel;
+      };
+      reader.onerror = () => {
+        this.clearUdpFile();
+        this.showToast('Gagal membaca file Excel dari perangkat.', 'error');
+      };
+      reader.readAsDataURL(file);
+    },
+
+    clearUdpFile() {
+      this.form.udp_file_base64 = '';
+      this.form.udp_file_orig_name = '';
+      this.form.udp_file_mime = '';
+      this.form.udp_file_size_label = '';
+      const inputEl = document.getElementById('udpExcelInput');
+      if (inputEl) inputEl.value = '';
+    },
+
+    canViewAgendaUdp(item) {
+      if (!this.authKoordinator || !item) return false;
+      if (this.isSuperAdmin) return true;
+      let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
+      return projCoord !== '' && projCoord === this.authKoordinator.trim().toUpperCase();
+    },
+
+    getDiffToStartDays(item) {
+      if (!item || !item.tanggal) return null;
+      let parts = String(item.tanggal).split('T')[0].split('-');
+      if (parts.length !== 3) return null;
+      let today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let startDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      startDate.setHours(0, 0, 0, 0);
+      return Math.round((startDate - today) / (1000 * 60 * 60 * 24));
+    },
+
+    matchesUdpBucket(item, mode) {
+      if (!this.authKoordinator || !item) return false;
+      let authKey = this.authKoordinator.trim().toUpperCase();
+      if (!this.isSuperAdmin) {
+        let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
+        if (projCoord !== authKey) return false;
+      }
+
+      if (this.isPastAgenda(item)) return false;
+
+      let udp = Number(item.udp) || 0;
+      if (udp <= 0) return false;
+
+      if (mode === 'all_udp') return true;
+
+      let diffToStart = this.getDiffToStartDays(item);
+      if (diffToStart === null) return false;
+
+      if (mode === 'h2') return diffToStart <= 2;
+      if (mode === 'h7') return diffToStart >= 3 && diffToStart <= 7;
+      if (mode === 'h14') return diffToStart >= 8 && diffToStart <= 14;
+
+      return false;
+    },
+
+    toggleUdpFilter(mode) {
+      if (this.udpFilterMode === mode) {
+        this.udpFilterMode = '';
+        return;
+      }
+      this.udpFilterMode = mode;
+      this.showUdpBreakdown = true;
+      this.jumpToFirstFilteredMonth();
+    },
+
+    clearUdpFilter() {
+      this.udpFilterMode = '';
+    },
+
+    get udpFilterLabel() {
+      const labels = {
+        h2: 'Mendesak (H-2)',
+        h7: 'Minggu Ini (H-3 s.d. H-7)',
+        h14: 'Minggu Depan (H-8 s.d. H-14)',
+        all_udp: 'Total Kebutuhan Dana'
+      };
+      return labels[this.udpFilterMode] || '';
+    },
+
+    get udpSummary() {
+      if (!this.authKoordinator) {
+        return {
+          visible: false,
+          mendesakH2: 0,
+          countMendesakH2: 0,
+          mingguIniH7: 0,
+          countMingguIniH7: 0,
+          mingguDepanH14: 0,
+          countMingguDepanH14: 0,
+          totalKebutuhan: 0,
+          countTotalKebutuhan: 0,
+          perProyek: [],
+          scopeLabel: ''
+        };
+      }
+
+      let authKey = this.authKoordinator.trim().toUpperCase();
+
+      // 1. Batasi scope berdasarkan hak akses (SuperAdmin = semua proyek, Koordinator = proyek miliknya)
+      let scopedAgendas = this.agendaList.filter(item => {
+        if (this.isSuperAdmin) return true;
+        let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
+        return projCoord === authKey;
+      });
+
+      // 2. Ikuti filter proyek yang sedang dipilih jika tidak "Semua Proyek"
+      if (!this.isAllProjectsSelected) {
+        scopedAgendas = scopedAgendas.filter(item => this.selectedProjects.includes(item.id_proyek));
+      }
+
+      // 3. Hanya hitung agenda yang belum selesai (aktif / mendatang)
+      let activeAgendas = scopedAgendas.filter(item => !this.isPastAgenda(item));
+
+      let mendesakH2 = 0;
+      let countMendesakH2 = 0;
+      let mingguIniH7 = 0;
+      let countMingguIniH7 = 0;
+      let mingguDepanH14 = 0;
+      let countMingguDepanH14 = 0;
+      let totalKebutuhan = 0;
+      let countTotalKebutuhan = 0;
+      let proyekMap = {};
+
+      activeAgendas.forEach(item => {
+        let udp = Number(item.udp) || 0;
+        totalKebutuhan += udp;
+        if (udp > 0) countTotalKebutuhan++;
+
+        let diffToStart = this.getDiffToStartDays(item);
+
+        let isH2Urgent = (diffToStart !== null && diffToStart <= 2);
+        let isH7Week = (diffToStart !== null && diffToStart >= 3 && diffToStart <= 7);
+        let isH14NextWeek = (diffToStart !== null && diffToStart >= 8 && diffToStart <= 14);
+
+        if (isH2Urgent) {
+          mendesakH2 += udp;
+          if (udp > 0) countMendesakH2++;
+        } else if (isH7Week) {
+          mingguIniH7 += udp;
+          if (udp > 0) countMingguIniH7++;
+        } else if (isH14NextWeek) {
+          mingguDepanH14 += udp;
+          if (udp > 0) countMingguDepanH14++;
+        }
+
+        if (udp > 0) {
+          let pid = item.id_proyek || 'UMUM';
+          if (!proyekMap[pid]) {
+            let infoP = this.proyekList[pid] || {};
+            proyekMap[pid] = {
+              id_proyek: pid,
+              nickname: infoP.nickname || item.nickname || pid,
+              warna: infoP.warna || item.warna || 'blue',
+              koordinator: infoP.nama_koordinator || infoP.nama_lengkap || infoP.koordinator || '-',
+              mendesakH2: 0,
+              countMendesakH2: 0,
+              mingguIniH7: 0,
+              countMingguIniH7: 0,
+              mingguDepanH14: 0,
+              countMingguDepanH14: 0,
+              totalKebutuhan: 0,
+              count: 0,
+              displayCount: 0,
+              files: []
+            };
+          }
+          proyekMap[pid].totalKebutuhan += udp;
+          proyekMap[pid].count++;
+
+          let fileUrl = item.file_udp_url || item.file_udp || '';
+          if (fileUrl) {
+            proyekMap[pid].files.push({
+              url: fileUrl,
+              name: item.file_udp_name || item.nama_kegiatan,
+              agendaName: item.nama_kegiatan
+            });
+          }
+
+          if (isH2Urgent) {
+            proyekMap[pid].mendesakH2 += udp;
+            proyekMap[pid].countMendesakH2++;
+          } else if (isH7Week) {
+            proyekMap[pid].mingguIniH7 += udp;
+            proyekMap[pid].countMingguIniH7++;
+          } else if (isH14NextWeek) {
+            proyekMap[pid].mingguDepanH14 += udp;
+            proyekMap[pid].countMingguDepanH14++;
+          }
+        }
+      });
+
+      let perProyek = Object.values(proyekMap).map(p => {
+        if (this.udpFilterMode === 'h2') {
+          p.displayCount = p.countMendesakH2;
+        } else if (this.udpFilterMode === 'h7') {
+          p.displayCount = p.countMingguIniH7;
+        } else if (this.udpFilterMode === 'h14') {
+          p.displayCount = p.countMingguDepanH14;
+        } else {
+          p.displayCount = p.count;
+        }
+        return p;
+      });
+
+      if (this.udpFilterMode === 'h2') {
+        perProyek = perProyek
+          .filter(p => p.mendesakH2 > 0)
+          .sort((a, b) => b.mendesakH2 - a.mendesakH2);
+      } else if (this.udpFilterMode === 'h7') {
+        perProyek = perProyek
+          .filter(p => p.mingguIniH7 > 0)
+          .sort((a, b) => b.mingguIniH7 - a.mingguIniH7);
+      } else if (this.udpFilterMode === 'h14') {
+        perProyek = perProyek
+          .filter(p => p.mingguDepanH14 > 0)
+          .sort((a, b) => b.mingguDepanH14 - a.mingguDepanH14);
+      } else {
+        perProyek = perProyek.sort((a, b) => b.totalKebutuhan - a.totalKebutuhan);
+      }
+
+      let scopeLabel = this.isSuperAdmin
+        ? (this.isAllProjectsSelected ? 'Semua Proyek (PM)' : this.selectedProjectInfo.nickname)
+        : (this.isAllProjectsSelected ? `Proyek Anda (${this.authCoordinatorFullName})` : this.selectedProjectInfo.nickname);
+
+      return {
+        visible: true,
+        mendesakH2,
+        countMendesakH2,
+        mingguIniH7,
+        countMingguIniH7,
+        mingguDepanH14,
+        countMingguDepanH14,
+        totalKebutuhan,
+        countTotalKebutuhan,
+        perProyek,
+        scopeLabel
+      };
     },
 
     async loginSession() {
@@ -149,8 +539,11 @@ function agendaApp() {
     logoutSession() {
       this.authKoordinator = '';
       this.authPin = '';
+      this.udpFilterMode = '';
+      this.showUdpBreakdown = false;
       sessionStorage.removeItem('agencil_coord');
       sessionStorage.removeItem('agencil_pin');
+      this.initData(true);
       this.showToast('Sesi login koordinator diakhiri.', 'success');
     },
 
@@ -292,8 +685,15 @@ function agendaApp() {
     },
     
     get filteredAgenda() {
-      if (this.isAllProjectsSelected) return this.agendaList;
-      return this.agendaList.filter(item => this.selectedProjects.includes(item.id_proyek));
+      let list = this.isAllProjectsSelected
+        ? this.agendaList
+        : this.agendaList.filter(item => this.selectedProjects.includes(item.id_proyek));
+
+      if (this.udpFilterMode) {
+        list = list.filter(item => this.matchesUdpBucket(item, this.udpFilterMode));
+      }
+
+      return list;
     },
 
     get currentMonthActiveCount() {
@@ -381,11 +781,20 @@ function agendaApp() {
         lokasi: '', 
         status: 'Fix',
         keterangan: '', 
+        udp: 0,
+        udp_display: '',
+        file_udp_url: '',
+        file_udp_name: '',
+        udp_file_base64: '',
+        udp_file_orig_name: '',
+        udp_file_mime: '',
+        udp_file_size_label: '',
         koordinator_input: this.authKoordinator, 
         pin_input: this.authPin 
       };
       this.confirmingDelete = false;
       this.openModal = true;
+      this.$nextTick(() => this.clearUdpFile());
     },
 
     openPinModal() {
@@ -447,6 +856,7 @@ function agendaApp() {
 
       let orangMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Orang/i) : null;
       let hariMatch = item.tim_durasi ? String(item.tim_durasi).match(/(\d+)\s*Hari/i) : null;
+      let numericUdp = Number(item.udp) || 0;
 
       this.form = { 
         ...item, 
@@ -457,6 +867,14 @@ function agendaApp() {
         tim_jumlah_hari: hariMatch ? hariMatch[1] : '',
         status: item.status || 'Fix',
         keterangan: item.keterangan || '',
+        udp: numericUdp,
+        udp_display: numericUdp > 0 ? numericUdp.toLocaleString('id-ID') : '',
+        file_udp_url: item.file_udp_url || item.file_udp || '',
+        file_udp_name: item.file_udp_name || '',
+        udp_file_base64: '',
+        udp_file_orig_name: '',
+        udp_file_mime: '',
+        udp_file_size_label: '',
         koordinator_input: this.authKoordinator, 
         pin_input: this.authPin 
       };
@@ -466,6 +884,7 @@ function agendaApp() {
       }
       this.confirmingDelete = false;
       this.openModal = true;
+      this.$nextTick(() => this.clearUdpFile());
     },
 
     prevMonth() { if (this.currentMonth === 0) { this.currentMonth = 11; this.currentYear--; } else { this.currentMonth--; } },
@@ -628,7 +1047,11 @@ function agendaApp() {
       await this.checkAppUpdate(isBackground);
       try {
         let separator = API_URL.includes('?') ? '&' : '?';
-        let res = await fetch(`${API_URL}${separator}t=${Date.now()}`);
+        let authQuery = '';
+        if (this.authKoordinator && this.authPin) {
+          authQuery = `&coord=${encodeURIComponent(this.authKoordinator)}&pin=${encodeURIComponent(this.authPin)}`;
+        }
+        let res = await fetch(`${API_URL}${separator}t=${Date.now()}${authQuery}`);
         let data = await res.json();
         this.agendaList = data.agenda;
         this.proyekList = data.proyek;
@@ -669,9 +1092,14 @@ function agendaApp() {
             sessionStorage.setItem('agencil_pin', this.authPin);
           }
 
+          let hasUploadedFile = Boolean(this.form.udp_file_base64);
+          this.clearUdpFile();
           this.openModal = false;
           this.initData(true);
-          this.showToast('Agenda berhasil disimpan!', 'success');
+          this.showToast(
+            hasUploadedFile ? 'Agenda & file rincian Excel berhasil disimpan!' : 'Agenda berhasil disimpan!',
+            'success'
+          );
         } else { this.showToast(result.message, 'error'); }
       } catch (err) { this.showToast('Kesalahan jaringan: ' + err.message, 'error'); } finally { this.submitting = false; }
     },
