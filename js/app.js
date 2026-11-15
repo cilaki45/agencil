@@ -8,6 +8,8 @@ function agendaApp() {
     users: {},
     selectedProjects: ['ALL'],
     udpFilterMode: '', // '' | 'h2' | 'h7' | 'h14' | 'all_udp'
+    activeTab: 'kalender', // 'kalender' | 'pagu'
+    paguStatusFilter: 'ALL', // 'ALL' | 'Menunggu Review PM' | 'ACC Final' | 'Revisi PM' | 'Ditolak'
     autoRefreshTimer: null,
     initialHtml: '',
     sidebarOpen: true,
@@ -23,9 +25,13 @@ function agendaApp() {
     openModal: false,
     openPinModalBox: false,
     openLoginModal: false,
+    openPaguModal: false,
+    openReviewUdpModal: false,
     confirmingDelete: false,
     submitting: false,
     submittingPin: false,
+    submittingPagu: false,
+    submittingReviewUdp: false,
     toast: { show: false, message: '', type: 'success' },
     currentYear: new Date().getFullYear(),
     currentMonth: new Date().getMonth(),
@@ -55,12 +61,95 @@ function agendaApp() {
       koordinator_input: '', 
       pin_input: '' 
     },
+    paguForm: {
+      id_proyek: '',
+      nickname: '',
+      koordinator: '',
+      terpakai: 0,
+      anggaran_kegiatan: 0,
+      anggaran_display: ''
+    },
+    reviewUdpForm: {
+      id_agenda: '',
+      id_proyek: '',
+      nickname: '',
+      nama_kegiatan: '',
+      tanggal_tampil: '',
+      jadwal_teks: '',
+      koordinator: '',
+      file_udp_url: '',
+      file_udp_name: '',
+      udp_usulan: 0,
+      udp_final: 0,
+      udp_final_display: '',
+      status_udp: 'ACC Final',
+      catatan_pm: ''
+    },
     pinForm: { koordinator_input: '', old_pin: '', new_pin: '', action: 'change_pin' },
     authKoordinator: sessionStorage.getItem('agencil_coord') || '',
     authPin: sessionStorage.getItem('agencil_pin') || '',
     loginForm: {
       koordinator: '',
       pin: ''
+    },
+
+    // --- COMPATIBILITY & ROLE GETTERS ---
+    get authRole() {
+      if (!this.authKoordinator) return '';
+      let coordKey = this.authKoordinator.trim().toUpperCase();
+      if (coordKey === 'SUPERADMIN') return 'superadmin';
+      if (this.users && this.users[coordKey] && this.users[coordKey].role) {
+        let r = String(this.users[coordKey].role).trim().toLowerCase();
+        if (r === 'project_officer' || r === 'officer' || r === 'project officer') {
+          return 'project_officer';
+        }
+        return r;
+      }
+      return 'koordinator';
+    },
+
+    get isSuperAdmin() {
+      return this.authRole === 'superadmin';
+    },
+
+    get isPM() {
+      return this.authRole === 'pm';
+    },
+
+    get isProjectOfficer() {
+      return this.authRole === 'project_officer';
+    },
+
+    get isPMOrSuperAdmin() {
+      return this.isSuperAdmin || this.isPM;
+    },
+
+    get canManageAllAgendas() {
+      return this.isSuperAdmin || this.isPM || this.isProjectOfficer;
+    },
+
+    get canManageFinance() {
+      // Project Officer TIDAK BISA mengatur pagu anggaran / keuangan
+      return this.isSuperAdmin || this.isPM;
+    },
+
+    get userRoleLabel() {
+      if (this.isSuperAdmin) return 'Superadmin';
+      if (this.isProjectOfficer) return 'Project Officer';
+      if (this.isPM) return 'Project Manager';
+      if (this.authKoordinator) return 'Koordinator';
+      return '';
+    },
+
+    get pendingUdpReviewCount() {
+      return this.paguControlData.pendingReviewCount || 0;
+    },
+
+    canEditAgenda(item) {
+      if (!this.authKoordinator || !item) return false;
+      if (this.canManageAllAgendas) return true;
+      let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
+      return projCoord !== '' && projCoord === this.authKoordinator.trim().toUpperCase();
     },
 
     get isAllProjectsSelected() {
@@ -162,16 +251,6 @@ function agendaApp() {
       return [...new Set(coords)].sort();
     },
 
-    get isSuperAdmin() {
-      if (!this.authKoordinator) return false;
-      let coordKey = this.authKoordinator.trim().toUpperCase();
-      if (coordKey === 'SUPERADMIN') return true;
-      if (this.users && this.users[coordKey] && this.users[coordKey].role === 'superadmin') {
-        return true;
-      }
-      return false;
-    },
-
     get authCoordinatorFullName() {
       if (!this.authKoordinator) return '';
       let coordKey = this.authKoordinator.trim().toUpperCase();
@@ -198,7 +277,8 @@ function agendaApp() {
 
     formatRupiah(angka) {
       let num = Number(angka) || 0;
-      return 'Rp ' + num.toLocaleString('id-ID');
+      const prefix = num < 0 ? '-Rp ' : 'Rp ';
+      return prefix + Math.abs(num).toLocaleString('id-ID');
     },
 
     formatRibuan(angka) {
@@ -206,10 +286,46 @@ function agendaApp() {
       return num > 0 ? num.toLocaleString('id-ID') : '';
     },
 
+    getEffectiveUdp(item) {
+      if (!item) return 0;
+      if (item.status_udp === 'Ditolak') return 0;
+      if (item.udp_efektif !== undefined && item.udp_efektif !== null) {
+        return Number(item.udp_efektif) || 0;
+      }
+      if (item.udp_final !== undefined && item.udp_final !== null) {
+        return Number(item.udp_final) || 0;
+      }
+      return Number(item.udp) || 0;
+    },
+
     handleUdpInput(val) {
       let cleanNum = parseInt(String(val || '0').replace(/[^0-9]/g, ''), 10) || 0;
       this.form.udp = cleanNum;
       this.form.udp_display = cleanNum > 0 ? cleanNum.toLocaleString('id-ID') : '';
+    },
+
+    handlePaguInput(val) {
+      let cleanNum = parseInt(String(val || '0').replace(/[^0-9]/g, ''), 10) || 0;
+      this.paguForm.anggaran_kegiatan = cleanNum;
+      this.paguForm.anggaran_display = cleanNum > 0 ? cleanNum.toLocaleString('id-ID') : '';
+    },
+
+    handleReviewUdpInput(val) {
+      let cleanNum = parseInt(String(val || '0').replace(/[^0-9]/g, ''), 10) || 0;
+      this.reviewUdpForm.udp_final = cleanNum;
+      this.reviewUdpForm.udp_final_display = cleanNum > 0 ? cleanNum.toLocaleString('id-ID') : '';
+      if (this.reviewUdpForm.status_udp === 'Ditolak' && cleanNum > 0) {
+        this.reviewUdpForm.status_udp = 'Revisi PM';
+      } else if (this.reviewUdpForm.status_udp === 'ACC Final' && cleanNum !== this.reviewUdpForm.udp_usulan) {
+        this.reviewUdpForm.status_udp = 'Revisi PM';
+      }
+    },
+
+    matchReviewUdpToUsulan() {
+      const val = Number(this.reviewUdpForm.udp_usulan) || 0;
+      this.reviewUdpForm.udp_final = val;
+      this.reviewUdpForm.udp_final_display = val > 0 ? val.toLocaleString('id-ID') : '';
+      this.reviewUdpForm.status_udp = 'ACC Final';
     },
 
     handleUdpFileChange(event) {
@@ -275,7 +391,7 @@ function agendaApp() {
 
     canViewAgendaUdp(item) {
       if (!this.authKoordinator || !item) return false;
-      if (this.isSuperAdmin) return true;
+      if (this.canManageAllAgendas) return true;
       let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
       return projCoord !== '' && projCoord === this.authKoordinator.trim().toUpperCase();
     },
@@ -294,14 +410,14 @@ function agendaApp() {
     matchesUdpBucket(item, mode) {
       if (!this.authKoordinator || !item) return false;
       let authKey = this.authKoordinator.trim().toUpperCase();
-      if (!this.isSuperAdmin) {
+      if (!this.canManageAllAgendas) {
         let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
         if (projCoord !== authKey) return false;
       }
 
       if (this.isPastAgenda(item)) return false;
 
-      let udp = Number(item.udp) || 0;
+      let udp = this.getEffectiveUdp(item);
       if (udp <= 0) return false;
 
       if (mode === 'all_udp') return true;
@@ -359,19 +475,16 @@ function agendaApp() {
 
       let authKey = this.authKoordinator.trim().toUpperCase();
 
-      // 1. Batasi scope berdasarkan hak akses (SuperAdmin = semua proyek, Koordinator = proyek miliknya)
       let scopedAgendas = this.agendaList.filter(item => {
-        if (this.isSuperAdmin) return true;
+        if (this.canManageAllAgendas) return true;
         let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
         return projCoord === authKey;
       });
 
-      // 2. Ikuti filter proyek yang sedang dipilih jika tidak "Semua Proyek"
       if (!this.isAllProjectsSelected) {
         scopedAgendas = scopedAgendas.filter(item => this.selectedProjects.includes(item.id_proyek));
       }
 
-      // 3. Hanya hitung agenda yang belum selesai (aktif / mendatang)
       let activeAgendas = scopedAgendas.filter(item => !this.isPastAgenda(item));
 
       let mendesakH2 = 0;
@@ -385,7 +498,7 @@ function agendaApp() {
       let proyekMap = {};
 
       activeAgendas.forEach(item => {
-        let udp = Number(item.udp) || 0;
+        let udp = this.getEffectiveUdp(item);
         totalKebutuhan += udp;
         if (udp > 0) countTotalKebutuhan++;
 
@@ -481,8 +594,8 @@ function agendaApp() {
         perProyek = perProyek.sort((a, b) => b.totalKebutuhan - a.totalKebutuhan);
       }
 
-      let scopeLabel = this.isSuperAdmin
-        ? (this.isAllProjectsSelected ? 'Semua Proyek (PM)' : this.selectedProjectInfo.nickname)
+      let scopeLabel = this.canManageAllAgendas
+        ? (this.isAllProjectsSelected ? (this.isPM ? 'Semua Proyek (PM)' : (this.isProjectOfficer ? 'Semua Proyek (Officer)' : 'Semua Proyek (Superadmin)')) : this.selectedProjectInfo.nickname)
         : (this.isAllProjectsSelected ? `Proyek Anda (${this.authCoordinatorFullName})` : this.selectedProjectInfo.nickname);
 
       return {
@@ -498,6 +611,335 @@ function agendaApp() {
         perProyek,
         scopeLabel
       };
+    },
+
+    // =========================================================================
+    // DATA & ANALITIK TAB 3: KONTROL PAGU ANGGARAN & MEJA BEDAH UDP PM
+    // =========================================================================
+    get paguControlData() {
+      if (!this.authKoordinator) {
+        return {
+          totalPagu: 0,
+          totalRealisasi: 0,
+          totalTerkunci: 0,
+          totalSisa: 0,
+          pendingReviewCount: 0,
+          projects: [],
+          udpItems: []
+        };
+      }
+
+      const authKey = this.authKoordinator.trim().toUpperCase();
+
+      const scopedProjectIds = Object.keys(this.proyekList || {}).filter(id => {
+        const p = this.proyekList[id];
+        if (!p) return false;
+        const status = (p.status || 'Aktif').trim().toLowerCase();
+        const isAktif = (status === 'aktif' || status === 'active');
+        if (!isAktif) return false;
+
+        if (!this.canManageAllAgendas) {
+          const projCoord = (p.koordinator || '').trim().toUpperCase();
+          if (projCoord !== authKey) return false;
+        }
+
+        if (!this.isAllProjectsSelected && !this.selectedProjects.includes(id)) {
+          return false;
+        }
+        return true;
+      });
+
+      let totalPagu = 0;
+      let totalRealisasi = 0;
+      let totalTerkunci = 0;
+      let pendingReviewCount = 0;
+
+      const projects = scopedProjectIds.map(id => {
+        const p = this.proyekList[id];
+        const pagu = Number(p.anggaran_kegiatan) || 0;
+        const projAgendas = this.agendaList.filter(a => a.id_proyek === id);
+
+        let realisasi = 0;
+        let countRealisasi = 0;
+        let terkunci = 0;
+        let countTerkunci = 0;
+        let countPending = 0;
+
+        projAgendas.forEach(item => {
+          const rawUdp = Number(item.udp) || 0;
+          const effUdp = this.getEffectiveUdp(item);
+          const statusUdp = item.status_udp || (rawUdp > 0 ? 'Menunggu Review PM' : '');
+
+          if (rawUdp > 0 && statusUdp === 'Menunggu Review PM') {
+            countPending++;
+            pendingReviewCount++;
+          }
+
+          if (effUdp > 0) {
+            if (this.isPastAgenda(item)) {
+              realisasi += effUdp;
+              countRealisasi++;
+            } else {
+              terkunci += effUdp;
+              countTerkunci++;
+            }
+          }
+        });
+
+        const terpakai = realisasi + terkunci;
+        const sisa = pagu - terpakai;
+        const isOverBudget = pagu > 0 && terpakai > pagu;
+
+        let pctRealisasi = 0;
+        let pctTerkunci = 0;
+        let pctUsedTotal = 0;
+
+        if (pagu > 0) {
+          pctUsedTotal = Math.round((terpakai / pagu) * 100);
+          if (terpakai <= pagu) {
+            pctRealisasi = (realisasi / pagu) * 100;
+            pctTerkunci = (terkunci / pagu) * 100;
+          } else {
+            pctRealisasi = (realisasi / terpakai) * 100;
+            pctTerkunci = (terkunci / terpakai) * 100;
+          }
+        }
+
+        totalPagu += pagu;
+        totalRealisasi += realisasi;
+        totalTerkunci += terkunci;
+
+        return {
+          id_proyek: id,
+          nickname: p.nickname || id,
+          nama_lengkap: p.nama_lengkap || '',
+          koordinator: p.nama_koordinator || p.nama_lengkap || p.koordinator || '-',
+          warna: p.warna || 'blue',
+          pagu,
+          realisasi,
+          countRealisasi,
+          terkunci,
+          countTerkunci,
+          terpakai,
+          sisa,
+          isOverBudget,
+          pctRealisasi: Number(pctRealisasi.toFixed(2)),
+          pctTerkunci: Number(pctTerkunci.toFixed(2)),
+          pctUsedTotal,
+          countPending
+        };
+      }).sort((a, b) => {
+        if (b.countPending !== a.countPending) return b.countPending - a.countPending;
+        const weightA = (a.pagu > 0 || a.terpakai > 0) ? 1 : 0;
+        const weightB = (b.pagu > 0 || b.terpakai > 0) ? 1 : 0;
+        if (weightB !== weightA) return weightB - weightA;
+        return a.nickname.localeCompare(b.nickname);
+      });
+
+      let udpItems = this.agendaList.filter(item => {
+        if ((Number(item.udp) || 0) <= 0) return false;
+        if (!this.canManageAllAgendas) {
+          const projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
+          if (projCoord !== authKey) return false;
+        }
+        if (!this.isAllProjectsSelected && !this.selectedProjects.includes(item.id_proyek)) {
+          return false;
+        }
+        return true;
+      }).map(item => {
+        const infoP = this.proyekList[item.id_proyek] || {};
+        const rawUdp = Number(item.udp) || 0;
+        const statusUdp = item.status_udp || 'Menunggu Review PM';
+        const effUdp = this.getEffectiveUdp(item);
+        return {
+          ...item,
+          nickname: infoP.nickname || item.nickname || item.id_proyek,
+          warna: infoP.warna || item.warna || 'blue',
+          koordinator_proyek: infoP.nama_koordinator || infoP.nama_lengkap || infoP.koordinator || '-',
+          status_udp_resolved: statusUdp,
+          udp_usulan_num: rawUdp,
+          udp_efektif_num: effUdp,
+          is_past: this.isPastAgenda(item)
+        };
+      });
+
+      if (this.paguStatusFilter !== 'ALL') {
+        udpItems = udpItems.filter(item => item.status_udp_resolved === this.paguStatusFilter);
+      }
+
+      udpItems.sort((a, b) => {
+        const pA = a.status_udp_resolved === 'Menunggu Review PM' ? 0 : 1;
+        const pB = b.status_udp_resolved === 'Menunggu Review PM' ? 0 : 1;
+        if (pA !== pB) return pA - pB;
+        if (!a.tanggal) return 1;
+        if (!b.tanggal) return -1;
+        return new Date(a.tanggal) - new Date(b.tanggal);
+      });
+
+      return {
+        totalPagu,
+        totalRealisasi,
+        totalTerkunci,
+        totalSisa: totalPagu - (totalRealisasi + totalTerkunci),
+        pendingReviewCount,
+        projects,
+        udpItems
+      };
+    },
+
+    // --- MAPPING FOR index.html PAGU & UDP REVIEW TABS ---
+    get paguOverview() {
+      const data = this.paguControlData;
+      return {
+        totalPagu: data.totalPagu,
+        totalRealisasiSelesai: data.totalRealisasi,
+        totalDanaTerkunci: data.totalTerkunci,
+        totalSisaSaldo: data.totalSisa,
+        cards: data.projects.map(p => ({
+          ...p,
+          realisasiSelesai: p.realisasi,
+          danaTerkunci: p.terkunci,
+          sisaSaldo: p.sisa,
+          pctSelesai: p.pctRealisasi // Sinkronisasi properti progress bar HTML
+        }))
+      };
+    },
+
+    udpReviewSearch: '',
+    udpReviewFilter: 'all', // 'all' | 'Menunggu Review PM' | 'ACC Final' | 'Revisi PM' | 'Ditolak'
+
+    get filteredUdpReviewList() {
+      let items = this.paguControlData.udpItems || [];
+      
+      if (this.udpReviewFilter !== 'all') {
+        items = items.filter(i => (i.status_udp || 'Menunggu Review PM') === this.udpReviewFilter);
+      }
+
+      if (this.udpReviewSearch.trim()) {
+        const q = this.udpReviewSearch.trim().toLowerCase();
+        items = items.filter(i => 
+          (i.nama_kegiatan && i.nama_kegiatan.toLowerCase().includes(q)) ||
+          (i.nickname && i.nickname.toLowerCase().includes(q)) ||
+          (i.catatan_pm && i.catatan_pm.toLowerCase().includes(q)) ||
+          (i.lokasi && i.lokasi.toLowerCase().includes(q))
+        );
+      }
+
+      return items.map(i => ({
+        ...i,
+        status_udp: i.status_udp || 'Menunggu Review PM',
+        udp_final: i.udp_final !== undefined ? i.udp_final : null,
+        tanggal_tampil: i.tanggal_tampil || ''
+      }));
+    },
+
+    openBedahUdpModal(item) {
+      this.openReviewModalForAgenda(item);
+    },
+
+    openEditPaguModal(proj) {
+      if (!proj) return;
+      const currentPagu = Number(proj.pagu) || 0;
+      this.paguForm = {
+        id_proyek: proj.id_proyek,
+        nickname: proj.nickname,
+        koordinator: proj.koordinator,
+        terpakai: Number(proj.terpakai) || 0,
+        anggaran_kegiatan: currentPagu,
+        anggaran_display: currentPagu > 0 ? currentPagu.toLocaleString('id-ID') : ''
+      };
+      this.openPaguModal = true;
+    },
+
+    async submitUpdatePagu() {
+      if (!this.paguForm.id_proyek) return;
+      this.submittingPagu = true;
+      try {
+        let res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'update_pagu',
+            koordinator_input: this.authKoordinator,
+            pin_input: this.authPin,
+            id_proyek: this.paguForm.id_proyek,
+            anggaran_kegiatan: this.paguForm.anggaran_kegiatan
+          })
+        });
+        let result = await res.json();
+        if (result.status === 'sukses') {
+          this.openPaguModal = false;
+          await this.initData(true);
+          this.showToast(result.message || 'Pagu anggaran kegiatan berhasil diperbarui!', 'success');
+        } else {
+          this.showToast(result.message || 'Gagal memperbarui pagu anggaran.', 'error');
+        }
+      } catch (err) {
+        this.showToast('Kesalahan jaringan: ' + err.message, 'error');
+      } finally {
+        this.submittingPagu = false;
+      }
+    },
+
+    openReviewModalForAgenda(item) {
+      if (!item) return;
+      const infoP = this.proyekList[item.id_proyek] || {};
+      const usulan = Number(item.udp) || 0;
+      const currentStatus = (item.status_udp && item.status_udp !== 'Menunggu Review PM')
+        ? item.status_udp
+        : 'ACC Final';
+      const initialFinal = currentStatus === 'Ditolak'
+        ? 0
+        : (item.udp_final !== null && item.udp_final !== undefined ? Number(item.udp_final) : usulan);
+
+      this.reviewUdpForm = {
+        id_agenda: item.id_agenda,
+        id_proyek: item.id_proyek,
+        nickname: infoP.nickname || item.nickname || item.id_proyek,
+        nama_kegiatan: item.nama_kegiatan,
+        tanggal_tampil: item.tanggal_tampil || '',
+        jadwal_teks: this.formatAgendaDate(item),
+        koordinator: infoP.nama_koordinator || infoP.nama_lengkap || infoP.koordinator || '-',
+        file_udp_url: item.file_udp_url || item.file_udp || '',
+        file_udp_name: item.file_udp_name || '',
+        udp_usulan: usulan,
+        udp_usulan_display: usulan > 0 ? usulan.toLocaleString('id-ID') : '',
+        udp_final: initialFinal,
+        udp_final_display: initialFinal > 0 ? initialFinal.toLocaleString('id-ID') : (currentStatus === 'Ditolak' ? '0' : ''),
+        status_udp: currentStatus,
+        catatan_pm: item.catatan_pm || ''
+      };
+      this.openReviewUdpModal = true;
+    },
+
+    async submitReviewUdp() {
+      if (!this.reviewUdpForm.id_agenda) return;
+      this.submittingReviewUdp = true;
+      try {
+        let res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'review_udp',
+            koordinator_input: this.authKoordinator,
+            pin_input: this.authPin,
+            id_agenda: this.reviewUdpForm.id_agenda,
+            status_udp: this.reviewUdpForm.status_udp,
+            udp_final: this.reviewUdpForm.status_udp === 'Ditolak' ? 0 : this.reviewUdpForm.udp_final,
+            catatan_pm: this.reviewUdpForm.catatan_pm
+          })
+        });
+        let result = await res.json();
+        if (result.status === 'sukses') {
+          this.openReviewUdpModal = false;
+          await this.initData(true);
+          this.showToast(result.message || 'Keputusan review UDP berhasil disimpan!', 'success');
+        } else {
+          this.showToast(result.message || 'Gagal menyimpan review UDP.', 'error');
+        }
+      } catch (err) {
+        this.showToast('Kesalahan jaringan: ' + err.message, 'error');
+      } finally {
+        this.submittingReviewUdp = false;
+      }
     },
 
     async loginSession() {
@@ -541,10 +983,12 @@ function agendaApp() {
       this.authPin = '';
       this.udpFilterMode = '';
       this.showUdpBreakdown = false;
+      this.activeTab = 'kalender';
+      this.paguStatusFilter = 'ALL';
       sessionStorage.removeItem('agencil_coord');
       sessionStorage.removeItem('agencil_pin');
       this.initData(true);
-      this.showToast('Sesi login koordinator diakhiri.', 'success');
+      this.showToast('Sesi login diakhiri.', 'success');
     },
 
     showToast(message, type = 'success') {
@@ -714,7 +1158,7 @@ function agendaApp() {
       let activeCoord = this.authKoordinator;
       if (!activeCoord) return {};
       
-      if (this.isSuperAdmin) {
+      if (this.canManageAllAgendas) {
         return this.proyekList;
       }
 
@@ -764,6 +1208,12 @@ function agendaApp() {
     openModalFromView() {
       this.viewModal = false;
       this.editAgenda(this.viewAgendaData);
+    },
+
+    openReviewFromView() {
+      const target = this.viewAgendaData;
+      this.viewModal = false;
+      this.openReviewModalForAgenda(target);
     },
 
     openAddModal() {
@@ -1058,7 +1508,7 @@ function agendaApp() {
         this.users = data.users || {};
         if (!isBackground && !this.autoRefreshTimer) {
           this.autoRefreshTimer = setInterval(() => {
-            if (!this.openModal && !this.viewModal && !this.openPinModalBox && !this.openLoginModal) {
+            if (!this.openModal && !this.viewModal && !this.openPinModalBox && !this.openLoginModal && !this.openPaguModal && !this.openReviewUdpModal) {
               this.initData(true);
             }
           }, 30000);
@@ -1140,6 +1590,16 @@ function agendaApp() {
           this.showToast('Agenda dihapus permanen.', 'success');
         } else { this.showToast(result.message, 'error'); }
       } catch (err) { this.showToast('Kesalahan jaringan.', 'error'); } finally { this.submitting = false; }
+    },
+
+    getUdpStatusBadgeClass(status) {
+      const map = {
+        'ACC Final': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'Revisi PM': 'bg-blue-50 text-blue-800 border-blue-200',
+        'Ditolak': 'bg-rose-50 text-rose-800 border-rose-200',
+        'Menunggu Review PM': 'bg-amber-50 text-amber-800 border-amber-200'
+      };
+      return map[status] || 'bg-slate-50 text-slate-700 border-slate-200';
     },
 
     getBadgeBgClass(warna) {
