@@ -16,6 +16,11 @@
     [x-cloak] { display: none !important; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media (min-width: 768px) {
+      .desktop-smart-rows {
+        grid-template-rows: var(--cal-rows);
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased" x-data="agendaApp()" x-init="initData()">
@@ -238,7 +243,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 flex flex-col min-w-0" :class="calendarGrid.every(c => c.agendas.length === 0) ? 'md:h-screen' : ''">
+    <main class="flex-1 flex flex-col min-w-0 md:min-h-screen">
       
       <header class="bg-white border-b border-slate-200 px-6 py-4 hidden md:flex items-center justify-between sticky top-0 z-30 shrink-0">
         <div class="flex items-center gap-4">
@@ -273,14 +278,15 @@
         </div>
       </div>
 
-      <div class="flex-1 p-4 md:p-6 overflow-x-auto" :class="calendarGrid.every(c => c.agendas.length === 0) ? 'md:flex md:flex-col' : ''">
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-w-[700px] md:min-w-[800px]" :class="calendarGrid.every(c => c.agendas.length === 0) ? 'md:flex-1 md:flex md:flex-col' : ''">
+      <div class="flex-1 p-4 md:p-6 overflow-x-auto md:flex md:flex-col">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-w-[700px] md:min-w-[800px] md:flex-1 md:flex md:flex-col">
           
           <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500 py-3 shrink-0">
             <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
           </div>
 
-          <div class="grid grid-cols-7 bg-slate-200 gap-px" :class="calendarGrid.every(c => c.agendas.length === 0) ? 'md:flex-1 md:auto-rows-fr' : ''">
+          <div class="grid grid-cols-7 bg-slate-200 gap-px md:flex-1 desktop-smart-rows"
+               :style="`--cal-rows: ${Array.from({length: calendarGrid.length / 7}, (_, w) => calendarGrid.slice(w * 7, w * 7 + 7).some(c => c.agendas.length > 0) ? 'auto' : 'minmax(55px, 1fr)').join(' ')}`">
             <template x-for="cell in calendarGrid" :key="cell.dateStr">
               <div class="bg-white p-2 flex flex-col transition hover:bg-slate-50/50" 
                    :class="[
