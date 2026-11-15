@@ -330,7 +330,7 @@
         </div>
       </div>
 
-      <!-- Panel Proyeksi Usulan Dana Proyek (UDP) - Hanya tampil saat login -->
+      <!-- Panel Usulan Dana Proyek (UDP) - Hanya tampil saat login -->
       <section x-show="udpSummary.visible" x-cloak class="px-3 md:px-6 pt-3 md:pt-5 shrink-0">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5 md:p-4 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -366,28 +366,32 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <!-- Grid 2x2 di Mobile, 4 Kolom di Desktop -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
             <!-- Card 1: Mendesak (H-2) -->
             <div @click="toggleUdpFilter('h2')"
                  role="button"
                  tabindex="0"
                  title="Klik untuk memfilter agenda Mendesak (H-2) di kalender"
-                 class="group p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+                 class="group p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
                  :class="[
                    udpSummary.mendesakH2 > 0
                      ? 'bg-amber-50/80 border-amber-200 hover:bg-amber-100/90 hover:border-amber-400 hover:shadow-amber-500/15'
                      : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 hover:border-slate-400 hover:shadow-slate-400/15',
                    udpFilterMode === 'h2' ? 'ring-2 ring-amber-500 bg-amber-100/80 border-amber-400 shadow-md' : ''
                  ]">
-              <div class="flex items-center justify-between gap-1.5">
+              <div class="flex items-center justify-between gap-1">
                 <span class="text-[10px] font-bold uppercase tracking-normal truncate"
-                      :class="udpSummary.mendesakH2 > 0 ? 'text-amber-700' : 'text-slate-500'">Mendesak (H-2)</span>
+                      :class="udpSummary.mendesakH2 > 0 ? 'text-amber-700' : 'text-slate-500'">
+                  <span class="sm:hidden">Mendesak H-2</span>
+                  <span class="hidden sm:inline">Mendesak (H-2)</span>
+                </span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap shrink-0"
                       :class="udpSummary.mendesakH2 > 0 ? 'bg-amber-200/70 text-amber-900' : 'bg-slate-200/70 text-slate-600'"
                       x-text="udpSummary.countMendesakH2 + ' Agd'"></span>
               </div>
-              <div class="flex items-end justify-between gap-2 mt-1">
-                <div class="text-sm md:text-base font-extrabold tracking-tight"
+              <div class="flex items-end justify-between gap-1 mt-1">
+                <div class="text-xs sm:text-sm md:text-base font-extrabold tracking-tight truncate"
                      :class="udpSummary.mendesakH2 > 0 ? 'text-amber-950' : 'text-slate-700'"
                      x-text="formatRupiah(udpSummary.mendesakH2)"></div>
                 <span class="text-[10px] font-bold transition-opacity shrink-0"
@@ -401,15 +405,18 @@
                  role="button"
                  tabindex="0"
                  title="Klik untuk memfilter agenda Minggu Ini (H-3 s.d. H-7) di kalender"
-                 class="group p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-blue-100/80 hover:border-blue-400 hover:shadow-md hover:shadow-blue-500/15 active:translate-y-0"
+                 class="group p-2.5 sm:p-3 rounded-xl bg-blue-50/60 border border-blue-200/80 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-blue-100/80 hover:border-blue-400 hover:shadow-md hover:shadow-blue-500/15 active:translate-y-0"
                  :class="udpFilterMode === 'h7' ? 'ring-2 ring-blue-500 bg-blue-100/70 border-blue-400 shadow-md' : ''">
-              <div class="flex items-center justify-between gap-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-blue-700">Minggu Ini (H-3 s.d. H-7)</span>
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-blue-700">
+                  <span class="sm:hidden">Minggu Ini</span>
+                  <span class="hidden sm:inline">Minggu Ini (H-3 s.d. H-7)</span>
+                </span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 whitespace-nowrap shrink-0"
                       x-text="udpSummary.countMingguIniH7 + ' Agd'"></span>
               </div>
-              <div class="flex items-end justify-between gap-2 mt-1">
-                <div class="text-sm md:text-base font-extrabold text-blue-950 tracking-tight"
+              <div class="flex items-end justify-between gap-1 mt-1">
+                <div class="text-xs sm:text-sm md:text-base font-extrabold text-blue-950 tracking-tight truncate"
                      x-text="formatRupiah(udpSummary.mingguIniH7)"></div>
                 <span class="text-[10px] font-bold text-blue-700 transition-opacity shrink-0"
                       :class="udpFilterMode === 'h7' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
@@ -422,15 +429,18 @@
                  role="button"
                  tabindex="0"
                  title="Klik untuk memfilter agenda Minggu Depan (H-8 s.d. H-14) di kalender"
-                 class="group p-3 rounded-xl bg-indigo-50/60 border border-indigo-200/80 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-indigo-100/80 hover:border-indigo-400 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0"
+                 class="group p-2.5 sm:p-3 rounded-xl bg-indigo-50/60 border border-indigo-200/80 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-indigo-100/80 hover:border-indigo-400 hover:shadow-md hover:shadow-indigo-500/15 active:translate-y-0"
                  :class="udpFilterMode === 'h14' ? 'ring-2 ring-indigo-500 bg-indigo-100/70 border-indigo-400 shadow-md' : ''">
-              <div class="flex items-center justify-between gap-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-indigo-700">Minggu Depan (H-8 s.d. H-14)</span>
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-indigo-700">
+                  <span class="sm:hidden">Minggu Depan</span>
+                  <span class="hidden sm:inline">Minggu Depan (H-8 s.d. H-14)</span>
+                </span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 whitespace-nowrap shrink-0"
                       x-text="udpSummary.countMingguDepanH14 + ' Agd'"></span>
               </div>
-              <div class="flex items-end justify-between gap-2 mt-1">
-                <div class="text-sm md:text-base font-extrabold text-indigo-950 tracking-tight"
+              <div class="flex items-end justify-between gap-1 mt-1">
+                <div class="text-xs sm:text-sm md:text-base font-extrabold text-indigo-950 tracking-tight truncate"
                      x-text="formatRupiah(udpSummary.mingguDepanH14)"></div>
                 <span class="text-[10px] font-bold text-indigo-700 transition-opacity shrink-0"
                       :class="udpFilterMode === 'h14' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
@@ -443,15 +453,18 @@
                  role="button"
                  tabindex="0"
                  title="Klik untuk memfilter seluruh agenda yang memiliki pengajuan UDP di kalender"
-                 class="group p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/90 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-emerald-100/80 hover:border-emerald-400 hover:shadow-md hover:shadow-emerald-500/15 active:translate-y-0"
+                 class="group p-2.5 sm:p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/90 transition-all duration-200 cursor-pointer select-none hover:-translate-y-0.5 hover:bg-emerald-100/80 hover:border-emerald-400 hover:shadow-md hover:shadow-emerald-500/15 active:translate-y-0"
                  :class="udpFilterMode === 'all_udp' ? 'ring-2 ring-emerald-500 bg-emerald-100/70 border-emerald-400 shadow-md' : ''">
-              <div class="flex items-center justify-between gap-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-emerald-700">Total Kebutuhan Dana</span>
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-normal truncate text-emerald-700">
+                  <span class="sm:hidden">Total Dana</span>
+                  <span class="hidden sm:inline">Total Kebutuhan Dana</span>
+                </span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0"
                       x-text="udpSummary.countTotalKebutuhan + ' Agd'"></span>
               </div>
-              <div class="flex items-end justify-between gap-2 mt-1">
-                <div class="text-sm md:text-base font-extrabold text-emerald-950 tracking-tight"
+              <div class="flex items-end justify-between gap-1 mt-1">
+                <div class="text-xs sm:text-sm md:text-base font-extrabold text-emerald-950 tracking-tight truncate"
                      x-text="formatRupiah(udpSummary.totalKebutuhan)"></div>
                 <span class="text-[10px] font-bold text-emerald-700 transition-opacity shrink-0"
                       :class="udpFilterMode === 'all_udp' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
@@ -462,61 +475,125 @@
 
           <div x-show="showUdpBreakdown"
                x-transition
-               class="pt-2 border-t border-slate-100 overflow-x-auto">
+               class="pt-2 border-t border-slate-100">
             <template x-if="udpSummary.perProyek.length > 0">
-              <table class="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr class="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                    <th class="py-2 pr-3 whitespace-nowrap">Proyek</th>
-                    <th class="py-2 px-3 whitespace-nowrap">Koordinator</th>
-                    <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h2' ? 'text-amber-700 bg-amber-50/70' : ''">Mendesak (H-2)</th>
-                    <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h7' ? 'text-blue-700 bg-blue-50/70' : ''">Minggu Ini</th>
-                    <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h14' ? 'text-indigo-700 bg-indigo-50/70' : ''">Minggu Depan</th>
-                    <th class="py-2 pl-3 pr-2 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'all_udp' ? 'text-emerald-700 bg-emerald-50/70' : ''">Total Kebutuhan</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
+              <div>
+                <!-- MOBILE VIEW (Ide 2: Smart Compact List — Zero Horizontal Scroll, Sembunyikan Rp 0) -->
+                <div class="md:hidden divide-y divide-slate-100">
                   <template x-for="p in udpSummary.perProyek" :key="p.id_proyek">
-                    <tr @click="selectUdpProjectRow(p.id_proyek)"
-                        class="cursor-pointer transition"
-                        :class="isProjectSelected(p.id_proyek) ? 'bg-blue-50/80 hover:bg-blue-100/70' : 'hover:bg-slate-50'">
-                      <td class="py-2 pr-3 font-bold text-slate-800 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
+                    <div @click="selectUdpProjectRow(p.id_proyek)"
+                         role="button"
+                         tabindex="0"
+                         class="py-2.5 px-2 rounded-xl cursor-pointer transition flex items-start justify-between gap-2.5"
+                         :class="isProjectSelected(p.id_proyek) ? 'bg-blue-50/80' : 'hover:bg-slate-50 active:bg-slate-100'">
+                      
+                      <!-- Kiri: Nama Proyek, RAB, Koordinator, & Badge Kategori (> Rp 0) -->
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5 flex-wrap">
                           <span class="w-2 h-2 rounded-full shrink-0" :class="getBadgeDotClass(p.warna)"></span>
-                          <span x-text="p.nickname"></span>
-                          <span class="text-[10px] font-semibold text-slate-400" x-text="'(' + p.displayCount + ')'"></span>
+                          <span class="font-bold text-xs text-slate-900 truncate" x-text="p.nickname"></span>
+                          <span class="text-[10px] font-semibold text-slate-400 shrink-0" x-text="'(' + p.displayCount + ')'"></span>
                           <template x-for="(f, fIdx) in (p.files || [])" :key="fIdx">
                             <a :href="f.url"
                                @click.stop
                                :title="'Download RAB (' + f.agendaName + '): ' + f.name"
-                               class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shrink-0">
-                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                               class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shrink-0">
+                              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                               <span x-text="p.files.length > 1 ? 'RAB ' + (fIdx + 1) : 'RAB'"></span>
                             </a>
                           </template>
                         </div>
-                      </td>
-                      <td class="py-2 px-3 text-slate-600 font-medium uppercase whitespace-nowrap">
-                        <span class="block truncate max-w-[92px] sm:max-w-[180px] md:max-w-none"
-                              :title="p.koordinator"
-                              x-text="p.koordinator"></span>
-                      </td>
-                      <td class="py-2 px-3 text-right font-bold whitespace-nowrap"
-                          :class="[p.mendesakH2 > 0 ? 'text-amber-700' : 'text-slate-400', udpFilterMode === 'h2' ? 'bg-amber-50/50' : '']"
-                          x-text="formatRupiah(p.mendesakH2)"></td>
-                      <td class="py-2 px-3 text-right font-semibold whitespace-nowrap"
-                          :class="[p.mingguIniH7 > 0 ? 'text-blue-700' : 'text-slate-400', udpFilterMode === 'h7' ? 'bg-blue-50/50' : '']"
-                          x-text="formatRupiah(p.mingguIniH7)"></td>
-                      <td class="py-2 px-3 text-right font-semibold whitespace-nowrap"
-                          :class="[p.mingguDepanH14 > 0 ? 'text-indigo-700' : 'text-slate-400', udpFilterMode === 'h14' ? 'bg-indigo-50/50' : '']"
-                          x-text="formatRupiah(p.mingguDepanH14)"></td>
-                      <td class="py-2 pl-3 pr-2 text-right font-extrabold text-slate-900 whitespace-nowrap"
-                          :class="udpFilterMode === 'all_udp' ? 'bg-emerald-50/50' : ''"
-                          x-text="formatRupiah(p.totalKebutuhan)"></td>
-                    </tr>
+
+                        <div class="text-[10px] text-slate-500 font-medium uppercase truncate mt-0.5 pl-3.5" x-text="p.koordinator"></div>
+
+                        <!-- Smart Compact Pills: hanya tampilkan bucket waktu yang > Rp 0 -->
+                        <div class="flex flex-wrap items-center gap-1 mt-1.5 pl-3.5"
+                             x-show="p.mendesakH2 > 0 || p.mingguIniH7 > 0 || p.mingguDepanH14 > 0">
+                          <span x-show="p.mendesakH2 > 0"
+                                class="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80"
+                                :class="udpFilterMode === 'h2' ? 'font-extrabold ring-1 ring-amber-400' : 'font-semibold'"
+                                x-text="'H-2: ' + formatRupiah(p.mendesakH2)"></span>
+                          <span x-show="p.mingguIniH7 > 0"
+                                class="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200/80"
+                                :class="udpFilterMode === 'h7' ? 'font-extrabold ring-1 ring-blue-400' : 'font-semibold'"
+                                x-text="'Mgg Ini: ' + formatRupiah(p.mingguIniH7)"></span>
+                          <span x-show="p.mingguDepanH14 > 0"
+                                class="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-200/80"
+                                :class="udpFilterMode === 'h14' ? 'font-extrabold ring-1 ring-indigo-400' : 'font-semibold'"
+                                x-text="'Mgg Depan: ' + formatRupiah(p.mingguDepanH14)"></span>
+                        </div>
+                      </div>
+
+                      <!-- Kanan: Nominal Utama (mengikuti filter aktif atau Total Kebutuhan) -->
+                      <div class="text-right shrink-0 pt-0.5">
+                        <div class="text-[9px] font-bold uppercase tracking-wider"
+                             :class="udpFilterMode === 'h2' ? 'text-amber-600' : (udpFilterMode === 'h7' ? 'text-blue-600' : (udpFilterMode === 'h14' ? 'text-indigo-600' : 'text-slate-400'))"
+                             x-text="udpFilterMode === 'h2' ? 'Mendesak H-2' : (udpFilterMode === 'h7' ? 'Minggu Ini' : (udpFilterMode === 'h14' ? 'Minggu Depan' : 'Total'))"></div>
+                        <div class="text-xs font-extrabold whitespace-nowrap mt-0.5"
+                             :class="udpFilterMode === 'h2' ? 'text-amber-800' : (udpFilterMode === 'h7' ? 'text-blue-800' : (udpFilterMode === 'h14' ? 'text-indigo-800' : 'text-slate-900'))"
+                             x-text="formatRupiah(udpFilterMode === 'h2' ? p.mendesakH2 : (udpFilterMode === 'h7' ? p.mingguIniH7 : (udpFilterMode === 'h14' ? p.mingguDepanH14 : p.totalKebutuhan)))"></div>
+                      </div>
+                    </div>
                   </template>
-                </tbody>
-              </table>
+                </div>
+
+                <!-- DESKTOP VIEW (Tabel 6 Kolom Lengkap) -->
+                <div class="hidden md:block overflow-x-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                        <th class="py-2 pr-3 whitespace-nowrap">Proyek</th>
+                        <th class="py-2 px-3 whitespace-nowrap">Koordinator</th>
+                        <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h2' ? 'text-amber-700 bg-amber-50/70' : ''">Mendesak (H-2)</th>
+                        <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h7' ? 'text-blue-700 bg-blue-50/70' : ''">Minggu Ini</th>
+                        <th class="py-2 px-3 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'h14' ? 'text-indigo-700 bg-indigo-50/70' : ''">Minggu Depan</th>
+                        <th class="py-2 pl-3 pr-2 text-right rounded-t-lg whitespace-nowrap" :class="udpFilterMode === 'all_udp' ? 'text-emerald-700 bg-emerald-50/70' : ''">Total Kebutuhan</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      <template x-for="p in udpSummary.perProyek" :key="p.id_proyek">
+                        <tr @click="selectUdpProjectRow(p.id_proyek)"
+                            class="cursor-pointer transition"
+                            :class="isProjectSelected(p.id_proyek) ? 'bg-blue-50/80 hover:bg-blue-100/70' : 'hover:bg-slate-50'">
+                          <td class="py-2 pr-3 font-bold text-slate-800 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                              <span class="w-2 h-2 rounded-full shrink-0" :class="getBadgeDotClass(p.warna)"></span>
+                              <span x-text="p.nickname"></span>
+                              <span class="text-[10px] font-semibold text-slate-400" x-text="'(' + p.displayCount + ')'"></span>
+                              <template x-for="(f, fIdx) in (p.files || [])" :key="fIdx">
+                                <a :href="f.url"
+                                   @click.stop
+                                   :title="'Download RAB (' + f.agendaName + '): ' + f.name"
+                                   class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shrink-0">
+                                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                  <span x-text="p.files.length > 1 ? 'RAB ' + (fIdx + 1) : 'RAB'"></span>
+                                </a>
+                              </template>
+                            </div>
+                          </td>
+                          <td class="py-2 px-3 text-slate-600 font-medium uppercase whitespace-nowrap">
+                            <span class="block truncate max-w-[92px] sm:max-w-[180px] md:max-w-none"
+                                  :title="p.koordinator"
+                                  x-text="p.koordinator"></span>
+                          </td>
+                          <td class="py-2 px-3 text-right font-bold whitespace-nowrap"
+                              :class="[p.mendesakH2 > 0 ? 'text-amber-700' : 'text-slate-400', udpFilterMode === 'h2' ? 'bg-amber-50/50' : '']"
+                              x-text="formatRupiah(p.mendesakH2)"></td>
+                          <td class="py-2 px-3 text-right font-semibold whitespace-nowrap"
+                              :class="[p.mingguIniH7 > 0 ? 'text-blue-700' : 'text-slate-400', udpFilterMode === 'h7' ? 'bg-blue-50/50' : '']"
+                              x-text="formatRupiah(p.mingguIniH7)"></td>
+                          <td class="py-2 px-3 text-right font-semibold whitespace-nowrap"
+                              :class="[p.mingguDepanH14 > 0 ? 'text-indigo-700' : 'text-slate-400', udpFilterMode === 'h14' ? 'bg-indigo-50/50' : '']"
+                              x-text="formatRupiah(p.mingguDepanH14)"></td>
+                          <td class="py-2 pl-3 pr-2 text-right font-extrabold text-slate-900 whitespace-nowrap"
+                              :class="udpFilterMode === 'all_udp' ? 'bg-emerald-50/50' : ''"
+                              x-text="formatRupiah(p.totalKebutuhan)"></td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </template>
             <template x-if="udpSummary.perProyek.length === 0">
               <div class="py-4 text-center text-xs text-slate-400 font-medium">
@@ -1032,6 +1109,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=22"></script>
+  <script src="js/app.js?v=23"></script>
 </body>
 </html>
