@@ -341,20 +341,34 @@ function agendaApp() {
       }
 
       let calculatedDurasi = 1;
-      if (cleanJadwalTeks) {
+      if (cleanJadwalTeks && cleanDate) {
         const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-        let matchRange = cleanJadwalTeks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
-        
-        if (matchRange && cleanDate) {
-          let startDay = parseInt(matchRange[1], 10);
-          let endDay = parseInt(matchRange[2], 10);
-          let monthStr = matchRange[3].toLowerCase();
-          let year = parseInt(matchRange[4], 10);
+        let dateParts = cleanDate.split('-');
+        let startYear = parseInt(dateParts[0], 10);
+        let startMonthIdx = parseInt(dateParts[1], 10) - 1;
+        let startDay = parseInt(dateParts[2], 10);
+        let startD = new Date(startYear, startMonthIdx, startDay);
+
+        let matchCrossMonth = cleanJadwalTeks.match(/(\d+)\s+([A-Za-z]+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+        let matchSameMonth = cleanJadwalTeks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+
+        if (matchCrossMonth) {
+          let eDay = parseInt(matchCrossMonth[3], 10);
+          let eMonthStr = matchCrossMonth[4].toLowerCase();
+          let eYear = parseInt(matchCrossMonth[5], 10);
+          let eMonthIdx = monthNames.findIndex(m => eMonthStr.includes(m));
+          if (eMonthIdx !== -1) {
+            let endD = new Date(eYear, eMonthIdx, eDay);
+            let diffDays = Math.round((endD - startD) / (1000 * 60 * 60 * 24)) + 1;
+            if (diffDays > 0) calculatedDurasi = diffDays;
+          }
+        } else if (matchSameMonth) {
+          let eDay = parseInt(matchSameMonth[2], 10);
+          let monthStr = matchSameMonth[3].toLowerCase();
+          let year = parseInt(matchSameMonth[4], 10);
           let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
-          
           if (monthIdx !== -1) {
-            let startD = new Date(year, monthIdx, startDay);
-            let endD = new Date(year, monthIdx, endDay);
+            let endD = new Date(year, monthIdx, eDay);
             let diffDays = Math.round((endD - startD) / (1000 * 60 * 60 * 24)) + 1;
             if (diffDays > 0) calculatedDurasi = diffDays;
           }
@@ -406,12 +420,21 @@ function agendaApp() {
       let endDateObj = new Date(year, month, day);
       
       if (item.jadwal_teks) {
+        let matchCrossMonth = item.jadwal_teks.match(/(\d+)\s+([A-Za-z]+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
         let matchRange = item.jadwal_teks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
         let matchSingle = item.jadwal_teks.match(/(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
         
         const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
         
-        if (matchRange) {
+        if (matchCrossMonth) {
+          let endDay = parseInt(matchCrossMonth[3], 10);
+          let monthStr = matchCrossMonth[4].toLowerCase();
+          let endYear = parseInt(matchCrossMonth[5], 10);
+          let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
+          if (monthIdx !== -1) {
+            endDateObj = new Date(endYear, monthIdx, endDay);
+          }
+        } else if (matchRange) {
           let endDay = parseInt(matchRange[2], 10);
           let monthStr = matchRange[3].toLowerCase();
           let endYear = parseInt(matchRange[4], 10);
@@ -454,11 +477,20 @@ function agendaApp() {
       let endDateObj = new Date(startYear, startMonth, startDay);
       
       if (item.jadwal_teks) {
+        let matchCrossMonth = item.jadwal_teks.match(/(\d+)\s+([A-Za-z]+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
         let matchRange = item.jadwal_teks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
         let matchSingle = item.jadwal_teks.match(/(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
         const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
         
-        if (matchRange) {
+        if (matchCrossMonth) {
+          let eDay = parseInt(matchCrossMonth[3], 10);
+          let eMonthStr = matchCrossMonth[4].toLowerCase();
+          let eYear = parseInt(matchCrossMonth[5], 10);
+          let eMonthIdx = monthNames.findIndex(m => eMonthStr.includes(m));
+          if (eMonthIdx !== -1) {
+            endDateObj = new Date(eYear, eMonthIdx, eDay);
+          }
+        } else if (matchRange) {
           let sDay = parseInt(matchRange[1], 10);
           let eDay = parseInt(matchRange[2], 10);
           let monthStr = matchRange[3].toLowerCase();
