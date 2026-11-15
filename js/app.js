@@ -6,7 +6,7 @@ function agendaApp() {
     agendaList: [],
     proyekList: {},
     users: {},
-    selectedProject: 'ALL',
+    selectedProjects: ['ALL'],
     autoRefreshTimer: null,
     initialHtml: '',
     sidebarOpen: true,
@@ -50,6 +50,45 @@ function agendaApp() {
     loginForm: {
       koordinator: '',
       pin: ''
+    },
+
+    get isAllProjectsSelected() {
+      return this.selectedProjects.includes('ALL') || this.selectedProjects.length === 0;
+    },
+
+    isProjectSelected(id) {
+      return !this.isAllProjectsSelected && this.selectedProjects.includes(id);
+    },
+
+    selectAllProjects() {
+      this.selectedProjects = ['ALL'];
+    },
+
+    selectSingleProject(id) {
+      if (id === 'ALL') {
+        this.selectedProjects = ['ALL'];
+      } else {
+        this.selectedProjects = [id];
+      }
+    },
+
+    toggleProjectSelection(id) {
+      if (id === 'ALL') {
+        this.selectedProjects = ['ALL'];
+        return;
+      }
+
+      if (this.isAllProjectsSelected) {
+        this.selectedProjects = [id];
+        return;
+      }
+
+      if (this.selectedProjects.includes(id)) {
+        const remaining = this.selectedProjects.filter(item => item !== id);
+        this.selectedProjects = remaining.length > 0 ? remaining : ['ALL'];
+      } else {
+        this.selectedProjects = [...this.selectedProjects, id];
+      }
     },
 
     get uniqueCoordinators() {
@@ -169,11 +208,24 @@ function agendaApp() {
     },
 
     get selectedProjectInfo() {
-      if (this.selectedProject === 'ALL' || !this.proyekList[this.selectedProject]) {
+      if (this.isAllProjectsSelected) {
         return { nickname: 'Semua Proyek', warna: 'blue', count: this.agendaList.length };
       }
-      const proj = this.proyekList[this.selectedProject];
-      return { nickname: proj.nickname, warna: proj.warna, count: this.getProjectCount(this.selectedProject) };
+
+      const validIds = this.selectedProjects.filter(id => this.proyekList[id]);
+      if (validIds.length === 0) {
+        return { nickname: 'Semua Proyek', warna: 'blue', count: this.agendaList.length };
+      }
+
+      if (validIds.length === 1) {
+        const proj = this.proyekList[validIds[0]];
+        return { nickname: proj.nickname, warna: proj.warna, count: this.getProjectCount(validIds[0]) };
+      }
+
+      const names = validIds.map(id => this.proyekList[id].nickname);
+      const label = validIds.length === 2 ? names.join(', ') : `${validIds.length} Proyek Dipilih`;
+      const totalCount = validIds.reduce((sum, id) => sum + this.getProjectCount(id), 0);
+      return { nickname: label, warna: this.proyekList[validIds[0]].warna || 'blue', count: totalCount };
     },
 
     get sortedActiveProyekList() {
@@ -216,14 +268,14 @@ function agendaApp() {
     },
 
     selectMobileProject(id) {
-      this.selectedProject = id;
+      this.selectSingleProject(id);
       this.projectSearch = '';
       this.openProjectSheet = false;
     },
     
     get filteredAgenda() {
-      if (this.selectedProject === 'ALL') return this.agendaList;
-      return this.agendaList.filter(item => item.id_proyek === this.selectedProject);
+      if (this.isAllProjectsSelected) return this.agendaList;
+      return this.agendaList.filter(item => this.selectedProjects.includes(item.id_proyek));
     },
 
     get currentMonthActiveCount() {
