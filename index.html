@@ -194,40 +194,45 @@
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+      <div class="flex-1 overflow-y-auto p-4 space-y-1.5 no-scrollbar">
         <div x-show="sidebarOpen" class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Filter Proyek</div>
         
         <div @click="selectAllProjects()" 
              role="button"
              tabindex="0"
-             class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer"
-             :class="isAllProjectsSelected ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'hover:bg-slate-800 text-slate-300'">
-          <div class="flex items-center gap-2.5 truncate">
-            <input type="checkbox"
-                   :checked="isAllProjectsSelected"
-                   @click.stop="selectAllProjects()"
-                   class="w-3.5 h-3.5 rounded border-slate-500 text-blue-600 focus:ring-0 cursor-pointer shrink-0">
-            <div class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></div>
+             class="group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer border"
+             :class="isAllProjectsSelected ? 'bg-blue-600/15 text-white border-blue-500/40 shadow-sm' : 'border-transparent hover:bg-slate-800/70 text-slate-300'">
+          <div class="flex items-center gap-3 truncate">
+            <button type="button"
+                    @click.stop="selectAllProjects()"
+                    aria-label="Semua Proyek"
+                    class="w-[18px] h-[18px] rounded-md flex items-center justify-center transition-all duration-150 shrink-0 border"
+                    :class="isAllProjectsSelected ? 'bg-blue-600 border-blue-500 text-white shadow-xs shadow-blue-600/40' : 'bg-slate-800/90 border-slate-600 text-blue-400 group-hover:border-slate-500'">
+              <svg x-show="isAllProjectsSelected" class="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+              <svg x-show="!isAllProjectsSelected" class="w-3 h-3 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"></path></svg>
+            </button>
             <span class="truncate">Semua Proyek</span>
           </div>
-          <span class="px-2 py-0.5 rounded-lg text-[10px]" :class="isAllProjectsSelected ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'" x-text="agendaList.length"></span>
+          <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors" :class="isAllProjectsSelected ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'" x-text="agendaList.length"></span>
         </div>
 
         <template x-for="(proj, id) in sortedActiveProyekList" :key="id">
           <div @click="selectSingleProject(id)" 
                role="button"
                tabindex="0"
-               class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer"
-               :class="isProjectSelected(id) ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'hover:bg-slate-800 text-slate-300'">
-            <div class="flex items-center gap-2.5 truncate">
-              <input type="checkbox"
-                     :checked="isProjectSelected(id)"
-                     @click.stop="toggleProjectSelection(id)"
-                     class="w-3.5 h-3.5 rounded border-slate-500 text-blue-600 focus:ring-0 cursor-pointer shrink-0">
-              <div class="w-2 h-2 rounded-full shrink-0" :class="getBadgeDotClass(proj.warna)"></div>
+               class="group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer border"
+               :class="isProjectSelected(id) ? 'bg-slate-800/90 text-white border-slate-700/80 shadow-sm' : 'border-transparent hover:bg-slate-800/50 text-slate-400 hover:text-slate-200'">
+            <div class="flex items-center gap-3 truncate">
+              <button type="button"
+                      @click.stop="toggleProjectSelection(id)"
+                      :aria-label="'Pilih ' + proj.nickname"
+                      class="w-[18px] h-[18px] rounded-md flex items-center justify-center transition-all duration-150 shrink-0 border-2"
+                      :class="isProjectSelected(id) ? getSidebarCheckboxCheckedClass(proj.warna) : getSidebarCheckboxUncheckedClass(proj.warna)">
+                <svg x-show="isProjectSelected(id)" class="w-3 h-3 text-white stroke-[3] drop-shadow-2xs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+              </button>
               <span class="truncate" x-text="proj.nickname"></span>
             </div>
-            <span class="px-2 py-0.5 rounded-lg text-[10px] shrink-0" :class="isProjectSelected(id) ? 'bg-blue-700 text-white' : 'bg-slate-800 text-slate-400'" x-text="getProjectCount(id)"></span>
+            <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold shrink-0 transition-colors" :class="isProjectSelected(id) ? 'bg-slate-700 text-slate-200' : 'bg-slate-800/80 text-slate-500 group-hover:text-slate-400'" x-text="getProjectCount(id)"></span>
           </div>
         </template>
       </div>
@@ -705,6 +710,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=9"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>
