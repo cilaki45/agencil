@@ -647,6 +647,10 @@ function agendaApp() {
           return false;
         }
         return true;
+      }).sort((a, b) => {
+        let nameA = (this.proyekList[a].nickname || '').toLowerCase();
+        let nameB = (this.proyekList[b].nickname || '').toLowerCase();
+        return nameA.localeCompare(nameB);
       });
 
       let totalPagu = 0;
@@ -728,13 +732,7 @@ function agendaApp() {
           pctUsedTotal,
           countPending
         };
-      }).sort((a, b) => {
-        if (b.countPending !== a.countPending) return b.countPending - a.countPending;
-        const weightA = (a.pagu > 0 || a.terpakai > 0) ? 1 : 0;
-        const weightB = (b.pagu > 0 || b.terpakai > 0) ? 1 : 0;
-        if (weightB !== weightA) return weightB - weightA;
-        return a.nickname.localeCompare(b.nickname);
-      });
+      }).sort((a, b) => a.nickname.localeCompare(b.nickname));
 
       let udpItems = this.agendaList.filter(item => {
         if ((Number(item.udp) || 0) <= 0) return false;
