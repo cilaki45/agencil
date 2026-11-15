@@ -338,7 +338,6 @@ function agendaApp() {
         cleanJadwalTeks = '';
       }
 
-      // SMART DURATION EXTRACTOR: Hitung durasi hari secara otomatis saat edit dari jadwal_teks
       let calculatedDurasi = 1;
       if (cleanJadwalTeks) {
         const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
@@ -434,6 +433,76 @@ function agendaApp() {
       let todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       
       return todayStr > endDateStr;
+    },
+
+    getAgendaStatusInfo(item) {
+      if (!item.tanggal) return { text: 'Aktif / Berjalan', isFinished: false, isTodayOrOngoing: true };
+      
+      let cleanDate = String(item.tanggal).split('T')[0];
+      let parts = cleanDate.split('-');
+      if (parts.length !== 3) return { text: 'Aktif / Berjalan', isFinished: false, isTodayOrOngoing: true };
+      
+      let startYear = parseInt(parts[0], 10);
+      let startMonth = parseInt(parts[1], 10) - 1;
+      let startDay = parseInt(parts[2], 10);
+      
+      let startDateObj = new Date(startYear, startMonth, startDay);
+      let endDateObj = new Date(startYear, startMonth, startDay);
+      
+      if (item.jadwal_teks) {
+        let matchRange = item.jadwal_teks.match(/(\d+)\s*-\s*(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+        let matchSingle = item.jadwal_teks.match(/(\d+)\s+([A-Za-z]+)\s+(\d{4})/);
+        const monthNames = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
+        
+        if (matchRange) {
+          let sDay = parseInt(matchRange[1], 10);
+          let eDay = parseInt(matchRange[2], 10);
+          let monthStr = matchRange[3].toLowerCase();
+          let year = parseInt(matchRange[4], 10);
+          let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
+          
+          if (monthIdx !== -1) {
+            startDateObj = new Date(year, monthIdx, sDay);
+            endDateObj = new Date(year, monthIdx, eDay);
+          }
+        } else if (matchSingle) {
+          let singleDay = parseInt(matchSingle[1], 10);
+          let monthStr = matchSingle[2].toLowerCase();
+          let year = parseInt(matchSingle[3], 10);
+          let monthIdx = monthNames.findIndex(m => monthStr.includes(m));
+          
+          if (monthIdx !== -1) {
+            startDateObj = new Date(year, monthIdx, singleDay);
+            endDateObj = new Date(year, monthIdx, singleDay);
+          }
+        }
+      }
+
+      let today = new Date();
+      today.setHours(0, 0, 0, 0);
+      startDateObj.setHours(0, 0, 0, 0);
+      endDateObj.setHours(0, 0, 0, 0);
+
+      if (today > endDateObj) {
+        return { text: 'Selesai', isFinished: true, isTodayOrOngoing: false };
+      }
+
+      let diffToStart = Math.round((startDateObj - today) / (1000 * 60 * 60 * 24));
+
+      if (diffToStart > 0) {
+        return { text: `H-${diffToStart}`, isFinished: false, isTodayOrOngoing: false };
+      }
+
+      if (today.getTime() === startDateObj.getTime()) {
+        return { text: 'Hari Ini', isFinished: false, isTodayOrOngoing: true };
+      }
+
+      if (today > startDateObj && today <= endDateObj) {
+        let diffFromStart = Math.round((today - startDateObj) / (1000 * 60 * 60 * 24));
+        return { text: `H+${diffFromStart}`, isFinished: false, isTodayOrOngoing: true };
+      }
+
+      return { text: 'Aktif / Berjalan', isFinished: false, isTodayOrOngoing: true };
     },
 
     async checkAppUpdate(isBackground) {
