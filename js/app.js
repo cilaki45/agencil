@@ -145,9 +145,14 @@ function agendaApp() {
       return this.paguControlData.pendingReviewCount || 0;
     },
 
+    get canAddAgenda() {
+      if (!this.authKoordinator) return false;
+      return this.isSuperAdmin || this.isProjectOfficer || Object.keys(this.filteredProyekOptions).length > 0;
+    },
+
     canEditAgenda(item) {
       if (!this.authKoordinator || !item) return false;
-      if (this.canManageAllAgendas) return true;
+      if (this.isSuperAdmin || this.isProjectOfficer) return true;
       let projCoord = (this.proyekList[item.id_proyek]?.koordinator || '').trim().toUpperCase();
       return projCoord !== '' && projCoord === this.authKoordinator.trim().toUpperCase();
     },
@@ -1156,7 +1161,7 @@ function agendaApp() {
       let activeCoord = this.authKoordinator;
       if (!activeCoord) return {};
       
-      if (this.canManageAllAgendas) {
+      if (this.isSuperAdmin || this.isProjectOfficer) {
         return this.proyekList;
       }
 
