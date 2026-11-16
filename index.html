@@ -429,7 +429,8 @@
             </div>
           </div>
         </section>
-<div class="flex-1 p-3 md:p-6 overflow-x-auto flex flex-col">
+
+        <div class="flex-1 p-3 md:p-6 overflow-x-auto flex flex-col">
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-w-[700px] md:min-w-[800px] flex-1 flex flex-col">
             <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500 py-3 shrink-0">
               <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
@@ -468,12 +469,12 @@
 
       <div x-show="activeTab === 'pagu' && authKoordinator" x-cloak class="flex-1 p-3 md:p-6 space-y-5">
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-3.5">
-          <div @click="openCardDrillDown('total_pagu')" role="button" tabindex="0" class="bg-white rounded-2xl border border-slate-200 p-3.5 md:p-4 shadow-2xs cursor-pointer hover:shadow-md hover:border-slate-300 transition-all">
+          <div class="bg-white rounded-2xl border border-slate-200 p-3.5 md:p-4 shadow-2xs">
             <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Pagu Kegiatan</div>
             <div class="text-sm sm:text-base md:text-lg font-extrabold text-slate-900 mt-1 truncate" x-text="formatRupiah(paguOverview.totalPagu)"></div>
             <div class="text-[10px] text-slate-500 mt-0.5" x-text="paguOverview.cards.length + ' Proyek Terpantau'"></div>
           </div>
-          <div @click="openCardDrillDown('realisasi_selesai')" role="button" tabindex="0" class="bg-white rounded-2xl border border-emerald-200/90 p-3.5 md:p-4 shadow-2xs cursor-pointer hover:shadow-md hover:border-emerald-400 transition-all">
+          <div class="bg-white rounded-2xl border border-emerald-200/90 p-3.5 md:p-4 shadow-2xs">
             <div class="flex items-center justify-between gap-1">
               <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Realisasi Selesai</span>
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -481,7 +482,7 @@
             <div class="text-sm sm:text-base md:text-lg font-extrabold text-emerald-900 mt-1 truncate" x-text="formatRupiah(paguOverview.totalRealisasiSelesai)"></div>
             <div class="text-[10px] text-emerald-600/90 mt-0.5">Kegiatan telah terlaksana</div>
           </div>
-          <div @click="openCardDrillDown('dana_terkunci')" role="button" tabindex="0" class="bg-white rounded-2xl border border-blue-200/90 p-3.5 md:p-4 shadow-2xs cursor-pointer hover:shadow-md hover:border-blue-400 transition-all">
+          <div class="bg-white rounded-2xl border border-blue-200/90 p-3.5 md:p-4 shadow-2xs">
             <div class="flex items-center justify-between gap-1">
               <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Dana Terkunci</span>
               <span class="w-2 h-2 rounded-full bg-blue-500"></span>
@@ -489,7 +490,7 @@
             <div class="text-sm sm:text-base md:text-lg font-extrabold text-blue-900 mt-1 truncate" x-text="formatRupiah(paguOverview.totalDanaTerkunci)"></div>
             <div class="text-[10px] text-blue-600/90 mt-0.5">Jadwal hari ini & mendatang</div>
           </div>
-          <div @click="openCardDrillDown('sisa_saldo')" role="button" tabindex="0" class="bg-white rounded-2xl border p-3.5 md:p-4 shadow-2xs cursor-pointer hover:shadow-md transition-all" :class="paguOverview.totalSisaSaldo < 0 ? 'border-rose-300 bg-rose-50/40 hover:border-rose-400' : 'border-slate-200 hover:border-slate-300'">
+          <div class="bg-white rounded-2xl border p-3.5 md:p-4 shadow-2xs" :class="paguOverview.totalSisaSaldo < 0 ? 'border-rose-300 bg-rose-50/40' : 'border-slate-200'">
             <div class="flex items-center justify-between gap-1">
               <span class="text-[10px] font-bold uppercase tracking-wider" :class="paguOverview.totalSisaSaldo < 0 ? 'text-rose-700' : 'text-slate-500'">Sisa Saldo Pagu</span>
               <span x-show="paguOverview.totalSisaSaldo < 0" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-rose-600 text-white">OVER</span>
@@ -692,45 +693,6 @@
 
   </div>
 
-  <!-- MODAL / DRAWER DRILL-DOWN CARD ANGGARAN -->
-  <div x-show="openCardDrawer" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity" x-transition.opacity @click="openCardDrawer = false">
-    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 max-h-[85vh] flex flex-col shadow-2xl border border-slate-200" @click.stop>
-      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
-        <div>
-          <h3 class="font-extrabold text-sm sm:text-base text-slate-900" x-text="cardDrawerTitle"></h3>
-          <p class="text-[11px] text-slate-500 mt-0.5" x-text="cardDrawerSubtitle"></p>
-        </div>
-        <button type="button" @click="openCardDrawer = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition">✕</button>
-      </div>
-      <div class="py-3 relative">
-        <input type="text" x-model="cardDrawerSearch" placeholder="Cari berdasarkan nama kegiatan atau proyek..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-7 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-600 outline-none transition font-medium">
-        <span class="absolute left-2.5 top-5 text-slate-400"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></span>
-        <button x-show="cardDrawerSearch" @click="cardDrawerSearch = ''" class="absolute right-2.5 top-5 text-slate-400 hover:text-slate-600 font-bold text-xs">✕</button>
-      </div>
-      <div class="flex-1 overflow-y-auto space-y-2.5 pr-0.5 no-scrollbar max-h-[50vh]">
-        <template x-for="(item, idx) in cardDrawerItems" :key="idx">
-          <div @click="handleCardDrawerItemClick(item)" role="button" tabindex="0" class="p-3.5 rounded-2xl border border-slate-200 hover:border-slate-300 bg-slate-50/50 hover:bg-slate-50 transition cursor-pointer flex items-center justify-between gap-3 shadow-2xs">
-            <div class="min-w-0 flex-1">
-              <div class="font-extrabold text-xs text-slate-900 truncate" x-text="item.title"></div>
-              <div class="text-[10px] text-slate-500 mt-0.5 truncate" x-text="item.subtitle"></div>
-              <div class="text-[10px] text-slate-600 font-medium mt-1 truncate" x-text="item.detailText"></div>
-            </div>
-            <div class="text-right shrink-0">
-              <span class="text-xs px-2.5 py-1.5 rounded-xl border block whitespace-nowrap" :class="item.badgeClass" x-text="item.badge"></span>
-            </div>
-          </div>
-        </template>
-        <template x-if="cardDrawerItems.length === 0">
-          <div class="py-8 text-center text-xs text-slate-400 font-medium">Tidak ada data yang sesuai dengan pencarian.</div>
-        </template>
-      </div>
-      <div class="pt-3.5 border-t border-slate-100 flex justify-end">
-        <button type="button" @click="openCardDrawer = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">Tutup</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL LOGIN -->
   <div x-show="openLoginModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity" x-transition.opacity>
     <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-200" @click.stop>
       <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
@@ -770,7 +732,6 @@
     </div>
   </div>
 
-  <!-- MODAL TAMBAH / EDIT AGENDA -->
   <div x-show="openModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity" x-transition.opacity>
     <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200" @click.stop>
       <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
@@ -820,346 +781,366 @@
           <div>
             <label class="block font-semibold text-slate-700 mb-1.5">Durasi (Jumlah Hari)</label>
             <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-600 focus-within:bg-white transition">
-              <button type="button" @click="form.durasi_hari = Math.max(1, (parseInt(form.durasi_hari) || 1) - 1); generateJadwalTeks()" class="px-3.5 py-3 text-slate-600 hover:bg-slate-200 font-bold transition">-</button>
-              <input type="number" min="1" x-model.number="form.durasi_hari" @input="generateJadwalTeks()" @change="generateJadwalTeks()" required class="w-full bg-transparent text-center text-xs font-bold text-slate-900 outline-none">
-              <button type="button" @click="form.durasi_hari = (parseInt(form.durasi_hari) || 1) + 1; generateJadwalTeks()" class="px-3.5 py-3 text-slate-600 hover:bg-slate-200 font-bold transition">+</button>
+              <button type="button" @click="form.durasi_hari = Math.max(1, (parseInt(form.durasi_hari) || 1) - 1); generateJadwalTeks()" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition active:scale-95">−</button>
+              <input type="number" min="1" max="30" x-model="form.durasi_hari" @input="generateJadwalTeks()" @change="generateJadwalTeks()" required class="w-full bg-transparent text-center font-bold text-slate-800 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <button type="button" @click="form.durasi_hari = (parseInt(form.durasi_hari) || 0) + 1; generateJadwalTeks()" class="px-3.5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition active:scale-95">+</button>
             </div>
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Teks Jadwal Pelaksanaan</label>
-          <input type="text" x-model="form.jadwal_teks" placeholder="Otomatis terisi dari tanggal & durasi" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="font-semibold text-slate-700">Format Teks Jadwal (Otomatis)</label>
+            <span class="text-[10px] text-emerald-600 font-semibold">Terisi otomatis dari tanggal & durasi</span>
+          </div>
+          <input type="text" x-model="form.jadwal_teks" disabled placeholder="Contoh: 16-17 November 2026" required class="w-full bg-slate-100 border border-slate-300 rounded-xl p-3 transition font-medium text-slate-600 cursor-not-allowed">
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1.5">Jumlah Tim (Orang)</label>
-            <input type="number" min="1" x-model="form.tim_jumlah_orang" @input="updateTimDurasi()" placeholder="1" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
+            <label class="block font-semibold text-slate-700 mb-1.5">Jumlah Personil (Orang)</label>
+            <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-600 focus-within:bg-white transition">
+              <button type="button" @click="form.tim_jumlah_orang = Math.max(1, (parseInt(form.tim_jumlah_orang) || 1) - 1); updateTimDurasi()" class="px-3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition active:scale-95">−</button>
+              <input type="number" min="1" max="50" x-model="form.tim_jumlah_orang" @input="updateTimDurasi()" placeholder="1" class="w-full bg-transparent text-center font-bold text-slate-800 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <button type="button" @click="form.tim_jumlah_orang = (parseInt(form.tim_jumlah_orang) || 0) + 1; updateTimDurasi()" class="px-3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition active:scale-95">+</button>
+            </div>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1.5">Durasi Tugas Tim (Hari)</label>
-            <input type="number" min="1" x-model="form.tim_jumlah_hari" @input="updateTimDurasi()" placeholder="1" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
+            <label class="block font-semibold text-slate-700 mb-1.5">Jumlah Hari Tugas</label>
+            <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-600 focus-within:bg-white transition">
+              <button type="button" @click="form.tim_jumlah_hari = Math.max(1, (parseInt(form.tim_jumlah_hari) || 1) - 1); updateTimDurasi()" class="px-3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition active:scale-95">−</button>
+              <input type="number" min="1" max="30" x-model="form.tim_jumlah_hari" @input="updateTimDurasi()" placeholder="1" class="w-full bg-transparent text-center font-bold text-slate-800 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              <button type="button" @click="form.tim_jumlah_hari = (parseInt(form.tim_jumlah_hari) || 0) + 1; updateTimDurasi()" class="px-3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition active:scale-95">+</button>
+            </div>
           </div>
         </div>
+        <input type="hidden" x-model="form.tim_durasi">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Ringkasan Tim & Durasi</label>
-          <input type="text" x-model="form.tim_durasi" placeholder="Contoh: 3 Orang, 2 Hari" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
+          <label class="block font-semibold text-slate-700 mb-1.5">Paket Peserta</label>
+          <input type="text" x-model="form.paket_peserta" placeholder="Contoh: Fullday 50 pax / Bappenas & Dinas Terkait" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 transition font-medium">
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1.5">Paket / Peserta</label>
-            <input type="text" x-model="form.paket_peserta" placeholder="Contoh: 50 Peserta / Fullboard" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
+            <label class="block font-semibold text-slate-700 mb-1.5">Lokasi</label>
+            <input type="text" x-model="form.lokasi" placeholder="Contoh: Semarang / Zoom Meeting" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 transition font-medium">
           </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1.5">Lokasi Kegiatan</label>
-            <input type="text" x-model="form.lokasi" placeholder="Contoh: Hotel / Kantor / Kota" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1.5">Status Jadwal</label>
-            <select x-model="form.status" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
-              <option value="Fix">Fix (Pasti)</option>
-              <option value="Tentatif">Tentatif (Menunggu Konfirmasi)</option>
-              <option value="Rencana">Rencana</option>
+            <select x-model="form.status" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium">
+              <option value="">-- Pilih Status --</option>
+              <option value="Fix">Fix</option>
+              <option value="Sementara">Sementara</option>
             </select>
           </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1.5">Pengajuan UDP (Rp)</label>
-            <div class="relative flex items-center">
-              <span class="absolute left-3 text-slate-400 font-bold">Rp</span>
-              <input type="text" inputmode="numeric" x-model="form.udp_display" @input="handleUdpInput($event.target.value)" placeholder="0" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-9 pr-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-bold text-slate-900">
-            </div>
-          </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Lampiran RAB / Rincian UDP (Excel)</label>
-          <div class="p-3 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 space-y-2">
-            <input id="udpExcelInput" type="file" accept=".xlsx,.xls,.xlsm" @change="handleUdpFileChange($event)" class="block w-full text-[11px] text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-slate-900 file:text-white hover:file:bg-blue-600 file:cursor-pointer">
-            <div x-show="form.udp_file_orig_name" class="flex items-center justify-between gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 text-[11px]">
-              <div class="truncate text-emerald-900 font-semibold">
-                <span x-text="form.udp_file_orig_name"></span>
-                <span class="text-emerald-600 font-normal" x-text="form.udp_file_size_label ? ' (' + form.udp_file_size_label + ')' : ''"></span>
-              </div>
-              <button type="button" @click="clearUdpFile()" class="text-rose-600 hover:text-rose-800 font-bold shrink-0">Hapus</button>
-            </div>
-            <div x-show="!form.udp_file_orig_name && form.file_udp_url" class="flex items-center justify-between gap-2 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 text-[11px]">
-              <a :href="form.file_udp_url" target="_blank" rel="noopener" class="truncate text-blue-700 hover:underline font-semibold" x-text="'File tersimpan: ' + (form.file_udp_name || 'RAB Excel')"></a>
-              <span class="text-[10px] text-blue-500 shrink-0">Upload baru untuk ganti</span>
-            </div>
-            <p class="text-[10px] text-slate-400">Format didukung: .xlsx, .xls, .xlsm (Maksimal 10 MB)</p>
-          </div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Keterangan / Catatan Tambahan</label>
+          <input type="text" x-model="form.keterangan" placeholder="Contoh: Menunggu konfirmasi narasumber / Ruang rapat Lt. 3" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 transition font-medium">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Keterangan / Catatan</label>
-          <textarea rows="2" x-model="form.keterangan" placeholder="Catatan tambahan mengenai kegiatan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium"></textarea>
-        </div>
-
-        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-          <div x-show="form.id_agenda" class="flex items-center gap-2">
-            <button x-show="!confirmingDelete" type="button" @click="confirmingDelete = true" :disabled="submitting" class="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold transition text-xs">Hapus Agenda</button>
-            <div x-show="confirmingDelete" class="flex items-center gap-1.5 w-full sm:w-auto">
-              <button type="button" @click="deleteAgenda()" :disabled="submitting" class="flex-1 sm:flex-none px-3 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition text-xs">Ya, Hapus</button>
-              <button type="button" @click="confirmingDelete = false" :disabled="submitting" class="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition text-xs">Batal</button>
-            </div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="font-semibold text-slate-700">Usulan Dana Proyek / UDP (Opsional)</label>
+            <span class="text-[10px] text-slate-400 font-medium">Isi 0 jika tanpa pengajuan dana</span>
           </div>
-          <div class="flex items-center gap-2 sm:ml-auto">
-            <button type="button" @click="openModal = false" :disabled="submitting" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition text-xs">Tutup</button>
-            <button type="submit" :disabled="submitting" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-blue-400 text-white font-bold shadow-lg shadow-blue-600/20 transition flex items-center justify-center gap-2 text-xs">
-              <svg x-show="submitting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-              <span x-text="submitting ? 'Menyimpan...' : (form.id_agenda ? 'Simpan Perubahan' : 'Simpan Agenda')"></span>
-            </button>
+          <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-600 focus-within:bg-white transition">
+            <span class="px-3.5 py-3 bg-slate-100 text-slate-600 font-bold text-xs border-r border-slate-300 select-none">Rp</span>
+            <input type="text" inputmode="numeric" :value="form.udp_display" @input="handleUdpInput($event.target.value)" placeholder="0" class="w-full bg-transparent px-3 py-3 font-bold text-slate-900 outline-none">
           </div>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL DETAIL AGENDA -->
-  <div x-show="viewModal && viewAgendaData" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity" x-transition.opacity>
-    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 sm:p-7 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200" @click.stop>
-      <template x-if="viewAgendaData">
-        <div class="space-y-4">
-          <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
-            <div class="space-y-1.5 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-[10px] font-extrabold uppercase tracking-wide" :class="getBadgeBgClass(proyekList[viewAgendaData.id_proyek] ? proyekList[viewAgendaData.id_proyek].warna : 'blue')">
-                  <span class="w-1.5 h-1.5 rounded-full" :class="getBadgeDotClass(proyekList[viewAgendaData.id_proyek] ? proyekList[viewAgendaData.id_proyek].warna : 'blue')"></span>
-                  <span x-text="proyekList[viewAgendaData.id_proyek] ? proyekList[viewAgendaData.id_proyek].nickname : viewAgendaData.id_proyek"></span>
-                </span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md" :class="getAgendaStatusInfo(viewAgendaData).isFinished ? 'bg-slate-200 text-slate-600' : (getAgendaStatusInfo(viewAgendaData).isTodayOrOngoing ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800')" x-text="getAgendaStatusInfo(viewAgendaData).text"></span>
-                <span x-show="viewAgendaData.status" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200" x-text="viewAgendaData.status"></span>
-              </div>
-              <h3 class="font-extrabold text-base sm:text-lg text-slate-900 leading-snug" x-text="viewAgendaData.nama_kegiatan"></h3>
-            </div>
-            <button type="button" @click="viewModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0 transition">✕</button>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="font-semibold text-slate-700">File Rincian Usulan Dana (Excel)</label>
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Hanya .xlsx / .xls</span>
           </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span class="text-[10px] font-bold uppercase text-slate-400 block">Jadwal Pelaksanaan</span>
-              <span class="font-bold text-slate-900 mt-0.5 block" x-text="formatAgendaDate(viewAgendaData)"></span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span class="text-[10px] font-bold uppercase text-slate-400 block">Lokasi</span>
-              <span class="font-bold text-slate-900 mt-0.5 block" x-text="viewAgendaData.lokasi || '-'"></span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span class="text-[10px] font-bold uppercase text-slate-400 block">Tim & Durasi</span>
-              <span class="font-bold text-slate-900 mt-0.5 block" x-text="viewAgendaData.tim_durasi || '-'"></span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-              <span class="text-[10px] font-bold uppercase text-slate-400 block">Paket / Peserta</span>
-              <span class="font-bold text-slate-900 mt-0.5 block" x-text="viewAgendaData.paket_peserta || '-'"></span>
-            </div>
-          </div>
-
-          <div x-show="viewAgendaData.keterangan" class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
-            <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Keterangan</span>
-            <p class="text-slate-700 whitespace-pre-line leading-relaxed" x-text="viewAgendaData.keterangan"></p>
-          </div>
-
-          <template x-if="canViewAgendaUdp(viewAgendaData) && (Number(viewAgendaData.udp) > 0 || viewAgendaData.file_udp_url || viewAgendaData.file_udp)">
-            <div class="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-2.5 text-xs">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-900">Informasi Anggaran / UDP</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border" :class="getUdpStatusBadgeClass(viewAgendaData.status_udp || 'Menunggu Review PM')" x-text="viewAgendaData.status_udp || 'Menunggu Review PM'"></span>
+          <template x-if="form.file_udp_url">
+            <div class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="text-[11px] font-semibold text-emerald-900 truncate" x-text="form.file_udp_name || 'Rincian_UDP.xlsx'"></span>
               </div>
-              <div class="grid grid-cols-2 gap-2 bg-white p-2.5 rounded-xl border border-blue-100">
-                <div>
-                  <span class="text-[9px] font-bold uppercase text-slate-400 block">Usulan UDP</span>
-                  <span class="font-bold text-slate-800" x-text="formatRupiah(viewAgendaData.udp)"></span>
-                </div>
-                <div>
-                  <span class="text-[9px] font-bold uppercase text-emerald-700 block">Final ACC PM</span>
-                  <span class="font-extrabold text-slate-900" x-text="viewAgendaData.udp_final !== null && viewAgendaData.udp_final !== undefined ? formatRupiah(viewAgendaData.udp_final) : 'Menunggu Review'"></span>
-                </div>
-              </div>
-              <div x-show="viewAgendaData.catatan_pm" class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-950">
-                <span class="font-bold text-[10px] uppercase text-amber-700 block">Catatan PM:</span>
-                <span x-text="viewAgendaData.catatan_pm"></span>
-              </div>
-              <div x-show="viewAgendaData.file_udp_url || viewAgendaData.file_udp">
-                <a :href="viewAgendaData.file_udp_url || viewAgendaData.file_udp" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow-2xs transition">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                  <span x-text="viewAgendaData.file_udp_name || 'Unduh RAB Excel'"></span>
-                </a>
-              </div>
+              <a :href="form.file_udp_url" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shrink-0 transition">Download ↓</a>
             </div>
           </template>
-
-          <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-            <button type="button" @click="viewModal = false" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">Tutup</button>
-            <button x-show="canManageFinance && Number(viewAgendaData.udp) > 0" type="button" @click="openReviewFromView()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs shadow-sm transition">Review UDP</button>
-            <button x-show="canEditAgenda(viewAgendaData)" type="button" @click="openModalFromView()" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm transition">Edit Agenda</button>
+          <div class="bg-slate-50 border border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-3 transition">
+            <input id="udpExcelInput" type="file" accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" @change="handleUdpFileChange($event)" class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 file:cursor-pointer cursor-pointer">
+            <p class="text-[10px] text-slate-400 mt-1.5" x-text="form.file_udp_url ? 'Upload file baru untuk menimpa/revisi file lama di folder bulan kegiatan.' : 'Otomatis masuk ke folder YYYY-MM di Google Drive & di-rename sesuai agenda.'"></p>
           </div>
-        </div>
-      </template>
-    </div>
-  </div>
-
-  <!-- MODAL GANTI PIN -->
-  <div x-show="openPinModalBox" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity" x-transition.opacity>
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-200" @click.stop>
-      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-        <div>
-          <h3 class="font-bold text-base text-slate-900">Ganti PIN Keamanan</h3>
-          <p class="text-xs text-slate-500 mt-0.5">Akun: <strong class="uppercase text-slate-700" x-text="authKoordinator"></strong></p>
-        </div>
-        <button type="button" @click="openPinModalBox = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition">✕</button>
-      </div>
-      <form @submit.prevent="submitChangePin" class="space-y-4 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">PIN Lama</label>
-          <input type="password" x-model="pinForm.old_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-center tracking-widest font-bold focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">PIN Baru (4-6 Digit)</label>
-          <input type="password" x-model="pinForm.new_pin" minlength="4" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-center tracking-widest font-bold focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition">
-        </div>
-        <div class="pt-2 flex gap-2">
-          <button type="button" @click="openPinModalBox = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition">Batal</button>
-          <button type="submit" :disabled="submittingPin" class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-400 text-white font-bold py-2.5 rounded-xl shadow-md transition" x-text="submittingPin ? 'Memproses...' : 'Simpan PIN Baru'"></button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL ATUR PAGU ANGGARAN (PM / SUPERADMIN) -->
-  <div x-show="openPaguModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity" x-transition.opacity>
-    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200" @click.stop>
-      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-        <div>
-          <h3 class="font-bold text-base text-slate-900">Atur Pagu Anggaran Kegiatan</h3>
-          <p class="text-xs text-slate-500 mt-0.5" x-text="paguForm.nickname + ' • PIC: ' + paguForm.koordinator"></p>
-        </div>
-        <button type="button" @click="openPaguModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition">✕</button>
-      </div>
-      <form @submit.prevent="submitUpdatePagu" class="space-y-4 text-xs">
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-          <span class="text-slate-500 font-semibold">Total Anggaran Terpakai Saat Ini:</span>
-          <span class="font-extrabold text-slate-900" x-text="formatRupiah(paguForm.terpakai)"></span>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Nominal Pagu Kegiatan (Rp)</label>
-          <div class="relative flex items-center">
-            <span class="absolute left-3.5 text-slate-400 font-bold">Rp</span>
-            <input type="text" inputmode="numeric" x-model="paguForm.anggaran_display" @input="handlePaguInput($event.target.value)" placeholder="0" required class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-10 pr-3 text-sm font-extrabold text-slate-900 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition">
-          </div>
-          <p x-show="paguForm.anggaran_kegiatan > 0 && paguForm.anggaran_kegiatan < paguForm.terpakai" class="text-[11px] text-rose-600 font-semibold mt-1.5">Peringatan: Pagu lebih kecil dari dana yang sudah terpakai/terkunci.</p>
-        </div>
-        <div class="pt-2 flex gap-2">
-          <button type="button" @click="openPaguModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition">Batal</button>
-          <button type="submit" :disabled="submittingPagu" class="flex-1 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-400 text-white font-bold py-2.5 rounded-xl shadow-md transition" x-text="submittingPagu ? 'Menyimpan...' : 'Simpan Pagu'"></button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL REVIEW / BEDAH UDP (PM / SUPERADMIN) -->
-  <div x-show="openReviewUdpModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity" x-transition.opacity>
-    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 sm:p-7 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200" @click.stop>
-      <div class="flex justify-between items-start gap-3 mb-4 pb-3 border-b border-slate-100">
-        <div>
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-600" x-text="reviewUdpForm.nickname"></span>
-          <h3 class="font-bold text-base text-slate-900 leading-snug" x-text="reviewUdpForm.nama_kegiatan"></h3>
-          <p class="text-[11px] text-slate-500 mt-0.5" x-text="reviewUdpForm.jadwal_teks + ' • PIC: ' + reviewUdpForm.koordinator"></p>
-        </div>
-        <button type="button" @click="openReviewUdpModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0 transition">✕</button>
-      </div>
-
-      <form @submit.prevent="submitReviewUdp" class="space-y-4 text-xs">
-        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
-          <div>
-            <span class="text-[10px] font-bold uppercase text-slate-400 block">Usulan Koordinator</span>
-            <span class="text-sm font-extrabold text-slate-900" x-text="formatRupiah(reviewUdpForm.udp_usulan)"></span>
-          </div>
-          <a x-show="reviewUdpForm.file_udp_url" :href="reviewUdpForm.file_udp_url" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-[11px] transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span>Buka RAB Excel</span>
-          </a>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Keputusan Status Review</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button type="button" @click="matchReviewUdpToUsulan()" class="py-2.5 px-3 rounded-xl border font-bold text-center transition" :class="reviewUdpForm.status_udp === 'ACC Final' ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50/60 text-emerald-800 border-emerald-200 hover:bg-emerald-100'">ACC Final</button>
-            <button type="button" @click="reviewUdpForm.status_udp = 'Revisi PM'" class="py-2.5 px-3 rounded-xl border font-bold text-center transition" :class="reviewUdpForm.status_udp === 'Revisi PM' ? 'bg-blue-600 text-white border-blue-600 shadow-xs' : 'bg-blue-50/60 text-blue-800 border-blue-200 hover:bg-blue-100'">Revisi PM</button>
-            <button type="button" @click="reviewUdpForm.status_udp = 'Ditolak'; reviewUdpForm.udp_final = 0; reviewUdpForm.udp_final_display = '0'" class="py-2.5 px-3 rounded-xl border font-bold text-center transition" :class="reviewUdpForm.status_udp === 'Ditolak' ? 'bg-rose-600 text-white border-rose-600 shadow-xs' : 'bg-rose-50/60 text-rose-800 border-rose-200 hover:bg-rose-100'">Ditolak</button>
-          </div>
-        </div>
-
-        <div x-show="reviewUdpForm.status_udp !== 'Ditolak'">
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="font-semibold text-slate-700">Nominal Disetujui / Final (Rp)</label>
-            <button type="button" @click="matchReviewUdpToUsulan()" class="text-[11px] font-bold text-blue-600 hover:underline">Samakan dengan Usulan</button>
-          </div>
-          <div class="relative flex items-center">
-            <span class="absolute left-3.5 text-slate-400 font-bold">Rp</span>
-            <input type="text" inputmode="numeric" x-model="reviewUdpForm.udp_final_display" @input="handleReviewUdpInput($event.target.value)" placeholder="0" required class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-10 pr-3 text-sm font-extrabold text-slate-900 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition">
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1.5">Catatan / Arahan PM</label>
-          <textarea rows="3" x-model="reviewUdpForm.catatan_pm" placeholder="Tuliskan catatan persetujuan, koreksi item RAB, atau alasan penolakan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium"></textarea>
-        </div>
-
-        <div class="pt-3 border-t border-slate-100 flex gap-2">
-          <button type="button" @click="openReviewUdpModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition">Batal</button>
-          <button type="submit" :disabled="submittingReviewUdp" class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-400 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-blue-600/20 transition" x-text="submittingReviewUdp ? 'Menyimpan...' : 'Simpan Keputusan PM'"></button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- BOTTOM SHEET FILTER PROYEK (MOBILE) -->
-  <div x-show="openProjectSheet" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end justify-center md:hidden transition-opacity" x-transition.opacity @click="openProjectSheet = false">
-    <div class="bg-white w-full rounded-t-3xl p-5 max-h-[80vh] flex flex-col shadow-2xl border-t border-slate-200" @click.stop>
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-        <div>
-          <h3 class="font-extrabold text-sm text-slate-900">Filter Proyek</h3>
-          <p class="text-[11px] text-slate-500">Pilih proyek untuk menyaring kalender & anggaran</p>
-        </div>
-        <button type="button" @click="openProjectSheet = false" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">✕</button>
-      </div>
-      <div class="py-3">
-        <input type="text" x-model="projectSearch" placeholder="Cari proyek atau koordinator..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none">
-      </div>
-      <div class="flex-1 overflow-y-auto space-y-1.5 pb-4">
-        <button type="button" @click="selectMobileProject('ALL')" class="w-full flex items-center justify-between p-3 rounded-xl border text-xs font-bold transition" :class="isAllProjectsSelected ? 'bg-blue-50 border-blue-300 text-blue-900' : 'bg-white border-slate-200 text-slate-700'">
-          <span>Semua Proyek</span>
-          <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]" x-text="agendaList.length"></span>
-        </button>
-        <template x-for="(proj, id) in filteredMobileProjects" :key="id">
-          <button type="button" @click="selectMobileProject(id)" class="w-full flex items-center justify-between p-3 rounded-xl border text-xs font-bold transition" :class="!isAllProjectsSelected && selectedProjects.includes(id) ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-800'">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="getBadgeDotClass(proj.warna)"></span>
-              <div class="text-left truncate">
-                <div class="truncate" x-text="proj.nickname"></div>
-                <div class="text-[10px] font-normal opacity-75 truncate" x-text="proj.nama_koordinator || proj.koordinator || '-'"></div>
+          <template x-if="form.udp_file_orig_name">
+            <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-[11px] font-bold text-blue-900 truncate" x-text="'Siap upload: ' + form.udp_file_orig_name"></div>
+                <div class="text-[10px] text-blue-600" x-text="'Ukuran: ' + form.udp_file_size_label"></div>
               </div>
+              <button type="button" @click="clearUdpFile()" class="px-2 py-1 rounded-lg bg-white hover:bg-rose-50 text-rose-600 border border-blue-200 text-[10px] font-bold shrink-0 transition">✕ Batal</button>
             </div>
-            <span class="px-2 py-0.5 rounded-full text-[10px] shrink-0" :class="!isAllProjectsSelected && selectedProjects.includes(id) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'" x-text="getProjectCount(id)"></span>
+          </template>
+        </div>
+        <div class="pt-4 flex gap-2">
+          <button type="button" @click="openModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl transition text-xs">Batal</button>
+          <button type="button" x-show="form.id_agenda" @click="confirmingDelete ? deleteAgenda() : confirmingDelete = true" @click.away="confirmingDelete = false" :disabled="!authKoordinator" class="transition-all text-white font-semibold py-3 px-3.5 rounded-xl shadow-md text-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5" :class="confirmingDelete ? 'bg-red-700 ring-4 ring-red-200' : 'bg-rose-600 hover:bg-rose-500'">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            <span x-text="confirmingDelete ? '⚠️ Yakin Hapus?' : 'Hapus'"></span>
+          </button>
+          <button type="submit" :disabled="submitting || !authKoordinator || !form.id_proyek" class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/20 transition flex justify-center items-center gap-2">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span x-show="!submitting" x-text="form.id_agenda ? 'Simpan Perubahan' : 'Simpan Baru'"></span>
+            <span x-show="submitting" x-text="form.udp_file_base64 ? 'Mengunggah Excel...' : 'Memproses...'"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div x-show="viewModal" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity" x-transition.opacity>
+    <div @click.away="viewModal = false" x-show="viewModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="bg-white w-full max-w-[460px] rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="h-1.5 w-full shrink-0" :class="getBadgeDotClass(viewAgendaData?.warna || proyekList[viewAgendaData?.id_proyek]?.warna || 'blue')"></div>
+      <div class="px-6 pt-5 pb-4 border-b border-slate-100 shrink-0">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md truncate">
+              <span class="w-2 h-2 rounded-full shrink-0" :class="getBadgeDotClass(viewAgendaData?.warna || proyekList[viewAgendaData?.id_proyek]?.warna || 'blue')"></span>
+              <span class="truncate" x-text="viewAgendaData?.nickname || proyekList[viewAgendaData?.id_proyek]?.nickname || viewAgendaData?.id_proyek"></span>
+            </span>
+            <template x-if="viewAgendaData">
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-md shrink-0 border" :class="getAgendaStatusInfo(viewAgendaData).isFinished ? 'bg-slate-50 text-slate-500 border-slate-200' : (getAgendaStatusInfo(viewAgendaData).isTodayOrOngoing ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200')" x-text="getAgendaStatusInfo(viewAgendaData).text"></span>
+            </template>
+          </div>
+          <button @click="viewModal = false" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs font-bold transition shrink-0">✕</button>
+        </div>
+        <h3 class="font-bold text-xl text-slate-900 tracking-tight leading-snug" x-text="viewAgendaData?.nama_kegiatan"></h3>
+        <div class="flex items-center gap-2 mt-2 text-xs text-slate-600 font-medium" x-show="proyekList[viewAgendaData?.id_proyek]?.nama_lengkap || proyekList[viewAgendaData?.id_proyek]?.nama_koordinator">
+          <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          <span>PIC: <strong class="text-slate-900 font-semibold" x-text="proyekList[viewAgendaData?.id_proyek]?.nama_koordinator || proyekList[viewAgendaData?.id_proyek]?.nama_lengkap"></strong></span>
+        </div>
+      </div>
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 no-scrollbar">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-3">
+          <div class="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs text-slate-600">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-bold text-slate-900" x-text="viewAgendaData?.tanggal_tampil"></div>
+            <div class="text-xs text-slate-600 font-medium mt-0.5 leading-relaxed break-words" x-show="viewAgendaData?.jadwal_teks" x-text="viewAgendaData ? formatAgendaDate(viewAgendaData) : ''"></div>
+          </div>
+        </div>
+        <div class="space-y-2.5 text-xs" x-show="viewAgendaData?.tim_durasi || viewAgendaData?.lokasi || viewAgendaData?.paket_peserta || viewAgendaData?.status || viewAgendaData?.keterangan || (canViewAgendaUdp(viewAgendaData) && (Number(viewAgendaData?.udp) > 0 || viewAgendaData?.file_udp_url || viewAgendaData?.file_udp))">
+          <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/90 shadow-2xs space-y-2.5" x-show="canViewAgendaUdp(viewAgendaData) && (Number(viewAgendaData?.udp) > 0 || viewAgendaData?.file_udp_url || viewAgendaData?.file_udp)">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-emerald-700 text-[10px] font-bold uppercase tracking-wider">Usulan Dana Proyek (UDP)</span>
+                  <span x-show="viewAgendaData?.status_udp" class="text-[9px] font-bold px-1.5 py-0.5 rounded border" :class="getUdpStatusBadgeClass(viewAgendaData?.status_udp)" x-text="viewAgendaData?.status_udp"></span>
+                </div>
+                <div class="font-extrabold text-sm text-emerald-950 break-words leading-relaxed mt-1" :class="viewAgendaData?.udp_final !== null && Number(viewAgendaData?.udp_final) !== Number(viewAgendaData?.udp) ? 'line-through text-slate-400 text-xs' : ''" x-text="formatRupiah(viewAgendaData?.udp)"></div>
+                <div x-show="viewAgendaData?.udp_final !== null" class="text-xs font-extrabold text-emerald-800 mt-0.5">Final ACC PM: <span x-text="formatRupiah(viewAgendaData?.udp_final)"></span></div>
+              </div>
+              <a x-show="viewAgendaData?.file_udp_url || viewAgendaData?.file_udp" :href="viewAgendaData?.file_udp_url || viewAgendaData?.file_udp || '#'" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow-xs transition shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span>Rincian RAB ↓</span>
+              </a>
+            </div>
+            <div x-show="viewAgendaData?.catatan_pm" class="p-2.5 rounded-lg bg-white/90 border border-emerald-200 text-[11px] text-slate-700">
+              <span class="font-bold text-[10px] uppercase text-slate-500 block">Catatan PM:</span>
+              <span x-text="viewAgendaData?.catatan_pm"></span>
+            </div>
+          </div>
+          <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1" x-show="viewAgendaData?.tim_durasi">
+            <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Tim & Durasi</div>
+            <div class="font-bold text-slate-800 break-words leading-relaxed" x-text="viewAgendaData?.tim_durasi"></div>
+          </div>
+          <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1" x-show="viewAgendaData?.lokasi">
+            <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Lokasi</div>
+            <div class="font-bold text-slate-800 break-words leading-relaxed" x-text="viewAgendaData?.lokasi"></div>
+          </div>
+          <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1" x-show="viewAgendaData?.paket_peserta">
+            <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Paket Peserta</div>
+            <div class="font-bold text-slate-800 break-words leading-relaxed" x-text="viewAgendaData?.paket_peserta"></div>
+          </div>
+          <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200/80 shadow-2xs space-y-1" x-show="viewAgendaData?.status">
+            <div class="text-amber-600 text-[10px] font-bold uppercase tracking-wider">Status Jadwal</div>
+            <div class="font-bold text-amber-900 break-words leading-relaxed" x-text="viewAgendaData?.status"></div>
+          </div>
+          <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1" x-show="viewAgendaData?.keterangan">
+            <div class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Keterangan</div>
+            <div class="font-bold text-slate-800 break-words leading-relaxed" x-text="viewAgendaData?.keterangan"></div>
+          </div>
+        </div>
+        <template x-if="viewAgendaData?.last_update">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-0.5 text-xs">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Update Terakhir</span>
+            <span class="font-medium text-slate-700 break-words" x-text="viewAgendaData.last_update"></span>
+          </div>
+        </template>
+      </div>
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0">
+        <button type="button" @click="viewModal = false" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-200/70 font-semibold text-xs transition">Tutup</button>
+        <template x-if="canManageFinance && Number(viewAgendaData?.udp) > 0">
+          <button type="button" @click="const itemToReview = viewAgendaData; viewModal = false; openBedahUdpModal(itemToReview);" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition flex items-center gap-1.5"><span>Review UDP</span></button>
+        </template>
+        <template x-if="canEditAgenda(viewAgendaData)">
+          <button type="button" @click="openModalFromView()" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-semibold text-xs shadow-sm transition flex items-center gap-2 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            <span>Edit Agenda</span>
           </button>
         </template>
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
-  <div x-show="toast.show" x-transition class="fixed bottom-5 right-5 z-50 max-w-sm">
-    <div class="px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold flex items-center gap-2.5" :class="toast.type === 'error' ? 'bg-rose-600 text-white border-rose-700' : 'bg-slate-900 text-white border-slate-800'">
-      <span x-show="toast.type !== 'error'" class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-      <span x-show="toast.type === 'error'" class="w-2 h-2 rounded-full bg-amber-300 shrink-0"></span>
-      <span x-text="toast.message"></span>
+  <div x-show="openPinModalBox" class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity" x-transition.opacity>
+    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200" @click.stop>
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-base text-slate-900">Ubah PIN Akun</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Perbarui PIN rahasia untuk akun Anda</p>
+        </div>
+        <button @click="openPinModalBox = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+      <form @submit.prevent="submitChangePin" class="space-y-4 text-xs" x-data="{ showOldPin: false, showNewPin: false }">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Akun Aktif</label>
+          <input type="text" :value="authKoordinator" disabled class="w-full bg-slate-100 border border-slate-300 rounded-xl p-3 text-xs font-bold uppercase text-slate-800 cursor-not-allowed">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">PIN Lama</label>
+          <div class="relative flex items-center">
+            <input :type="showOldPin ? 'text' : 'password'" x-model="pinForm.old_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-3 pr-10 text-center tracking-widest font-medium">
+            <button type="button" @click="showOldPin = !showOldPin" class="absolute right-3 text-slate-400 hover:text-slate-700 focus:outline-none transition">
+              <svg x-show="!showOldPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              <svg x-show="showOldPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.03 10.03 0 012.21-3.585M9.88 9.88l3.24 3.24M3 3l18 18"></path></svg>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">PIN Baru (4-6 Digit)</label>
+          <div class="relative flex items-center">
+            <input :type="showNewPin ? 'text' : 'password'" x-model="pinForm.new_pin" maxlength="6" required placeholder="••••" class="w-full bg-slate-50 border border-slate-300 rounded-xl py-3 pl-3 pr-10 text-center tracking-widest font-medium">
+            <button type="button" @click="showNewPin = !showNewPin" class="absolute right-3 text-slate-400 hover:text-slate-700 focus:outline-none transition">
+              <svg x-show="!showNewPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              <svg x-show="showNewPin" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.03 10.03 0 012.21-3.585M9.88 9.88l3.24 3.24M3 3l18 18"></path></svg>
+            </button>
+          </div>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" @click="openPinModalBox = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl">Batal</button>
+          <button type="submit" :disabled="submittingPin" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl shadow-md flex items-center justify-center gap-2">
+            <span x-show="!submittingPin">Simpan PIN Baru</span>
+            <span x-show="submittingPin">Memproses...</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <script src="js/ui-helpers.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/calendar.js"></script>
-  <script src="js/pagu-udp.js"></script>
-  <script src="js/app.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <div x-show="openPaguModal" x-cloak class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 transition-opacity" x-transition.opacity>
+    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-200" @click.stop>
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-base text-slate-900">Atur Pagu Anggaran Kegiatan</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Tetapkan plafon anggaran kegiatan proyek</p>
+        </div>
+        <button type="button" @click="openPaguModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+      <form @submit.prevent="submitUpdatePagu()" class="space-y-4 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <div class="text-[10px] font-bold uppercase text-slate-400">Proyek Terpilih</div>
+          <div class="font-extrabold text-sm text-slate-900 mt-0.5" x-text="paguForm.nickname"></div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Koordinator: <strong class="uppercase text-slate-700" x-text="paguForm.koordinator || '-'"></strong></div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Nominal Pagu Anggaran Kegiatan</label>
+          <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-600 focus-within:bg-white transition">
+            <span class="px-3.5 py-3 bg-slate-100 text-slate-600 font-bold text-xs border-r border-slate-300 select-none">Rp</span>
+            <input type="text" inputmode="numeric" :value="paguForm.anggaran_display" @input="handlePaguInput($event.target.value)" placeholder="0" required class="w-full bg-transparent px-3 py-3 font-extrabold text-sm text-slate-900 outline-none">
+          </div>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" @click="openPaguModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl">Batal</button>
+          <button type="submit" :disabled="submittingPagu" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl shadow-md flex items-center justify-center gap-2">
+            <span x-show="!submittingPagu">Simpan Pagu Proyek</span>
+            <span x-show="submittingPagu">Menyimpan...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div x-show="openReviewUdpModal" x-cloak class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity" x-transition.opacity>
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl p-6 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200" @click.stop>
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-bold text-base text-slate-900">Review UDP</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Verifikasi RAB, sesuaikan nominal ACC final, dan beri catatan PM</p>
+        </div>
+        <button type="button" @click="openReviewUdpModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">✕</button>
+      </div>
+      <form @submit.prevent="submitReviewUdp()" class="space-y-4 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-700" x-text="reviewUdpForm.nickname"></span>
+            <span class="text-[11px] font-semibold text-slate-500" x-text="reviewUdpForm.tanggal_tampil"></span>
+          </div>
+          <div class="font-extrabold text-sm text-slate-900" x-text="reviewUdpForm.nama_kegiatan"></div>
+          <div class="pt-1 flex items-center justify-between gap-2 border-t border-slate-200/80">
+            <div>
+              <span class="text-[10px] font-bold uppercase text-slate-400 block">Usulan Koordinator</span>
+              <span class="text-sm font-extrabold text-slate-800" x-text="formatRupiah(reviewUdpForm.udp_usulan)"></span>
+            </div>
+            <a x-show="reviewUdpForm.file_udp_url" :href="reviewUdpForm.file_udp_url" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow-xs transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>Download RAB Excel</span>
+            </a>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Keputusan / Status Review PM</label>
+          <select x-model="reviewUdpForm.status_udp" @change="if (reviewUdpForm.status_udp === 'Ditolak') { reviewUdpForm.udp_final = 0; reviewUdpForm.udp_final_display = '0'; }" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-bold">
+            <option value="ACC Final">ACC Final (Disetujui)</option>
+            <option value="Revisi PM">Revisi PM (Nominal Disesuaikan)</option>
+            <option value="Ditolak">Ditolak (Rp 0)</option>
+            <option value="Menunggu Review PM">Menunggu Review PM (Reset)</option>
+          </select>
+        </div>
+        <div x-show="reviewUdpForm.status_udp !== 'Menunggu Review PM'">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="font-semibold text-slate-700">Nominal UDP Final ACC (PM)</label>
+            <button type="button" @click="matchReviewUdpToUsulan()" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 underline">Samakan dgn Usulan</button>
+          </div>
+          <div class="flex items-center bg-slate-50 border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-600 focus-within:bg-white transition">
+            <span class="px-3.5 py-3 bg-slate-100 text-slate-600 font-bold text-xs border-r border-slate-300 select-none">Rp</span>
+            <input type="text" inputmode="numeric" :disabled="reviewUdpForm.status_udp === 'Ditolak'" :value="reviewUdpForm.udp_final_display" @input="handleReviewUdpInput($event.target.value)" placeholder="0" class="w-full bg-transparent px-3 py-3 font-extrabold text-sm text-emerald-900 outline-none disabled:text-slate-400">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Catatan Penyesuaian / Alasan Coretan PM</label>
+          <textarea x-model="reviewUdpForm.catatan_pm" rows="3" placeholder="Contoh: Honor narasumber disesuaikan standar, konsumsi dipangkas untuk 30 pax..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition font-medium"></textarea>
+        </div>
+        <div class="pt-2 flex gap-2">
+          <button type="button" @click="openReviewUdpModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl">Batal</button>
+          <button type="submit" :disabled="submittingReviewUdp" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
+            <span x-show="!submittingReviewUdp">Simpan Keputusan PM</span>
+            <span x-show="submittingReviewUdp">Menyimpan...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div x-show="toast.show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-[-1rem]" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-[-1rem]" class="fixed top-6 right-6 z-[100] max-w-sm w-full px-4 pointer-events-none">
+    <div class="pointer-events-auto rounded-2xl p-4 shadow-2xl border flex items-center gap-3 backdrop-blur-md transition-all" :class="toast.type === 'error' ? 'bg-rose-950/95 text-white border-rose-800 shadow-rose-950/50' : 'bg-slate-900/95 text-white border-slate-800 shadow-slate-900/50'">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-inner" :class="toast.type === 'error' ? 'bg-rose-600 text-white' : 'bg-blue-600 text-white'">
+        <template x-if="toast.type === 'error'">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </template>
+        <template x-if="toast.type !== 'error'">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </template>
+      </div>
+      <div class="flex-1 text-xs font-semibold leading-relaxed tracking-wide" x-text="toast.message"></div>
+      <button @click="toast.show = false" class="text-slate-400 hover:text-white text-xs font-bold px-2 py-1 transition">✕</button>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=26"></script>
 </body>
 </html>
